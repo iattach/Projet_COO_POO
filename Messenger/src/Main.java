@@ -2,9 +2,11 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import Controller.Menu;
 import Controller.Panel;
 import View.ViewPanel;
 
@@ -12,6 +14,7 @@ public class Main extends JFrame{
 	
 	Panel panel;
 	ViewPanel view;
+	JMenuBar jmb;
 	
 	/**
 	 * @param s
@@ -22,17 +25,20 @@ public class Main extends JFrame{
 		super(s);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		view=new ViewPanel();
+		//panel
 		JPanel contenant = new JPanel();
 		contenant.setLayout(new BorderLayout());
-
 		panel = new Panel(view);
-		panel.setPreferredSize(new Dimension(200,120));
+		panel.setMinimumSize(new Dimension(200,150));
 		contenant.add(panel, BorderLayout.NORTH);
-
 		contenant.add(new JScrollPane(view.getT()), BorderLayout.CENTER);
+		//menubar
+		this.jmb=new Menu(view,panel);
+		this.setJMenuBar(jmb);
+		
 		this.setContentPane(contenant);
 		this.setPreferredSize(new Dimension(w, h));
-		this.setResizable(false);
+		this.setResizable(true);
 		this.pack();
 
 	}
@@ -41,7 +47,6 @@ public class Main extends JFrame{
 		
 		Main f = new Main("Chat box", 300,300);
 		f.setVisible(true);
-
 	}
 
 }
