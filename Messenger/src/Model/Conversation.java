@@ -5,9 +5,9 @@ import java.util.ArrayList;
 public class Conversation {
 	
 	private ArrayList<Message> conv = new ArrayList<Message>();
-	private Adresse destination;
+	private Adress destination;
 	
-	protected Conversation(Adresse destination) {
+	public Conversation(Adress destination) {
 		this.destination = destination;
 	}
 
@@ -31,11 +31,11 @@ public class Conversation {
 		return this.conv.toArray(new Message[this.conv.size()]);
 	}
 	
-	protected Adresse getDestination() {
+	protected Adress getDestination() {
 		return destination;
 	}
 
-	protected void setDestination(Adresse destination) {
+	protected void setDestination(Adress destination) {
 		this.destination = destination;
 	}
 	
