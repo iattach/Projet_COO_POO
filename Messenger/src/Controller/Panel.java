@@ -1,6 +1,7 @@
 package Controller;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import Model.*;
+import Model.Account;
 import Model.TextModel;
 import View.ViewPanel;
 
@@ -27,19 +30,22 @@ public class Panel extends JPanel {
 	private ViewPanel vresult;	
 	private TextModel tmodel;
 	private JPanel principle;
-	//private Requete r;
+	private DBLocal db;
+	private Application app;
 	private String users;
 	private String mdp;
 	private String display;
-	//private 
-	private String displayName;
-	private String mdp1;
+	private JTextField username;
+	private JPasswordField pass;
 	/**
 	 * @param vuer
 	 * 	construteur qui initialiser tous les bouttons et texts
 	 */
-	public Panel (ViewPanel view) {
+	@SuppressWarnings("deprecation")
+	public Panel (ViewPanel view,DBLocal db, Application app) {
+		this.app=app;
 		this.vresult=view;
+		this.db=db;
 		tmodel=new TextModel();
 		/*
 		 * lier le vue avec le modele de text
@@ -66,26 +72,16 @@ public class Panel extends JPanel {
 		 * pour collecter les identifiants 
 		 */
 		op.add(new JLabel("UserName : "+"    ",JLabel.LEFT));
-		JTextField username=new JTextField(10);
+		username=new JTextField(10);
 		op.add(username);
 		
 		op.add(new JLabel("Password : "+"    ",JLabel.LEFT));
-		JPasswordField pass=new JPasswordField();
+		pass=new JPasswordField();
 		op.add(pass);
 		
 		
 		JButton p = new JButton("Sign In");
-		p.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
-			public void actionPerformed(ActionEvent e) {
-				tmodel.setJ("Login");
-				users=username.getText();
-				mdp=pass.getText();
-				username.setText("");
-				pass.setText("");
-				
-			}
-		});
+		p.addActionListener(new createAccountHandler());
 		op.add(p);
 		
 		JButton p1 = new JButton("Sign Up");
@@ -143,11 +139,11 @@ public class Panel extends JPanel {
 		 * pour collecter les identifiants 
 		 */
 		op.add(new JLabel("Display Name : "+"    ",JLabel.LEFT));
-		JTextField username=new JTextField(10);
+		username=new JTextField(10);
 		op.add(username);
 		
 		op.add(new JLabel("Confirmed : "+"    ",JLabel.LEFT));
-		JPasswordField pass=new JPasswordField();
+		pass=new JPasswordField();
 		op.add(pass);
 		
 		
@@ -205,11 +201,11 @@ public class Panel extends JPanel {
 		 * pour collecter les identifiants 
 		 */
 		op.add(new JLabel("UserName : "+"    ",JLabel.LEFT));
-		JTextField username=new JTextField(10);
+		username=new JTextField(10);
 		op.add(username);
 		
 		op.add(new JLabel("Password : "+"    ",JLabel.LEFT));
-		JPasswordField pass=new JPasswordField();
+		pass=new JPasswordField();
 		op.add(pass);
 		
 		op.add(new JLabel("Display Name : "+"    ",JLabel.LEFT));
@@ -237,9 +233,30 @@ public class Panel extends JPanel {
 		
 		this.revalidate();
 	}
+	
+	
+	public void update(String s) {
+		tmodel.setJ(tmodel.getJ().getText()+s);
+	}
 	public void closeApplicaiton(){
 		System.exit(0);
 	}
 	
-	
+	private class createAccountHandler implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String user = username.getText();
+			String password = pass.getText();
+			String nickname= "test";
+			Address add = new Address( nickname,user);
+			Account acc =  new Account(user,password,nickname,add);
+			
+			
+			app.setSocket(new SocketInternalNetwork(acc,app.getUI()));
+			
+			
+		}
+		
+	}
 }

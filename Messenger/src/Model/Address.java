@@ -4,22 +4,22 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 
-public class Adress {
+public class Address {
 	private InetAddress ip; //get the destination address
 	private String nikename;
 	private String username;
 	private Timestamp time;
 	
-	public Adress(InetAddress ip, String nikename, String username) {
+	public Address(InetAddress ip, String nikename, String username) {
 		
 		this.ip = ip;
 		this.nikename = nikename;
 		this.username = username;
 	}
 	
-	public Adress(String nickname, String userTest) {
+	public Address(String nickname, String userTest) {
 		try {
-			this.ip = InetAddress.getByAddress(Tools.getPcIP());
+			this.ip = InetAddress.getByAddress(InstanceTool.getPcIP());
 		} catch (UnknownHostException e) {
 			this.ip = null;
 		}
