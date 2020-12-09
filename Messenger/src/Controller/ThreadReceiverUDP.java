@@ -36,7 +36,8 @@ public class ThreadReceiverUDP extends Thread {
 		System.out.println("ThreadReceiver: starting . . .");
 		try {
 			/*InstanceTool.PortNumber.UDP_RCV_PORT.getValue()*/
-			this.receiver = new DatagramSocket(Integer.parseInt(onlineUser.getUsername()));
+			/*Integer.parseInt(onlineUser.getUsername())*/
+			this.receiver = new DatagramSocket(InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
 		} catch (SocketException e) {
 			System.out.println("ThreadReceiverUDP: Error creatino socket");
 			e.printStackTrace();
@@ -78,6 +79,7 @@ public class ThreadReceiverUDP extends Thread {
 				
 				receiver.receive(inPacket);
 				if (inPacket != null) {
+					System.out.println("ThreadReceiverUDP: Socket received");
 					//System.out.println("ThreadReceiverUDP: msg recu");
 					InetAddress clientAddress = inPacket.getAddress();
 					String message = new String (inPacket.getData(), 0, inPacket.getLength());

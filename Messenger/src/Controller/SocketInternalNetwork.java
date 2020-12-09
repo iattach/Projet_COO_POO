@@ -39,7 +39,7 @@ public class SocketInternalNetwork {
 	
 	ConcurrentHashMap<String,Address> connectedUserList = new ConcurrentHashMap<String,Address>(); // Need to be synchronized
 	
-	protected final Account usernameLogged;
+	protected final Account accountLogged;
 	protected static final int MAX_CHAR = 300;
 	
 	DatagramSocket UDP_SEND_Socket;
@@ -51,20 +51,21 @@ public class SocketInternalNetwork {
 	
 	
 	
-	public SocketInternalNetwork(Account usernameLogged, UserInterface ui){
-		this.usernameLogged = usernameLogged;
+	public SocketInternalNetwork(Account accountLogged, UserInterface ui){
+		this.accountLogged = accountLogged;
 		this.connectedUserList = new ConcurrentHashMap<String,Address>();
 		this.db = new DBLocal();
 		this.ui = ui;
 		try {
 			//InstanceTool.PortNumber.UDP_SEND_PORT.getValue()
-			this.UDP_SEND_Socket = new DatagramSocket(Integer.parseInt(usernameLogged.getUsername())+1);
+			//Integer.parseInt(accountLogged.getUsername())+1
+			this.UDP_SEND_Socket = new DatagramSocket(InstanceTool.PortNumber.UDP_SEND_PORT.getValue());
 		} catch (SocketException e) {
 			System.out.println("Internal Socket: Error init UDP socket in constructor");
 			e.printStackTrace();
 		}
 		this.startReceiverThread();
-		this.sendConnected(usernameLogged);
+		this.sendConnected(accountLogged);
 	}
 	
 	
@@ -82,8 +83,13 @@ public class SocketInternalNetwork {
 		System.out.println("InternalSocket: BROADCAST SENT");
 		String message = userOnline.getNickname() + "\n" + userOnline.getUsername() + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
 		try {
-			DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),listAllBroadcastAddresses().get(0), InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
-			this.UDP_SEND_Socket.send(outPacket);
+			/*Integer.parseInt(accountLogged.getUsername())*/
+			List<InetAddress> listBroadAddress=this.listAllBroadcastAddresses();			
+			for(int i=0; i<listBroadAddress.size();i++) {
+				DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),listAllBroadcastAddresses().get(i),InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
+				this.UDP_SEND_Socket.send(outPacket);
+			}
+			System.out.println("Infomation of User account has been sent");
 		} catch ( IOException e) {
 			System.out.println("InternalSocket: Error dans sendConnected");
 			e.printStackTrace();
@@ -118,8 +124,8 @@ public class SocketInternalNetwork {
 	
 	public void startReceiverThread() {
 		System.out.println("InternalSocket: starting RECEIVER UDP AND TCP THREADS . . .");
-		//this.TCP_RCV_Thread = new ThreadReceiverTCP(this.db, usernameLogged.getUsername(),this.connectedUserList, this.ui);
-		this.UDP_RCV_Thread = new ThreadReceiverUDP(this.connectedUserList, this.db, this.UDP_SEND_Socket, usernameLogged, this.ui);
+		//this.TCP_RCV_Thread = new ThreadReceiverTCP(this.db, accountLogged.getUsername(),this.connectedUserList, this.ui);
+		this.UDP_RCV_Thread = new ThreadReceiverUDP(this.connectedUserList, this.db, this.UDP_SEND_Socket, accountLogged, this.ui);
 	}
 
 	public synchronized void  setUserList(ConcurrentHashMap<String,Address> ul) {

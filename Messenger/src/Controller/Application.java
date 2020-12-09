@@ -20,11 +20,7 @@ public class Application{
 	private SocketInternalNetwork socket;
 	/*private Account loggedAccount;
 	
-	//private ... server;
-
-	
-	
-	
+	//private ... server;	
 	
 	
 	*/
