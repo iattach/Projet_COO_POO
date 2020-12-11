@@ -5,6 +5,7 @@ public class Account {
 	private String nickname;
 	private String username;
 	private String password;
+	private Address address;
 	
 	public Account(String username, String password,String nickname, Address add) {
 		this.nickname = nickname;
@@ -36,6 +37,13 @@ public class Account {
 		this.password = password;
 	}
 	
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
 	//A IMPLEMENTER
 	public boolean verifyPassword(String password) {
 		return false;

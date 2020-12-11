@@ -6,14 +6,14 @@ import java.sql.Timestamp;
 
 public class Address {
 	private InetAddress ip; //get the destination address
-	private String nikename;
+	private String nickname;
 	private String username;
 	private Timestamp time;
 	
-	public Address(InetAddress ip, String nikename, String username) {
+	public Address(InetAddress ip, String nickname, String username) {
 		
 		this.ip = ip;
-		this.nikename = nikename;
+		this.nickname = nickname;
 		this.username = username;
 	}
 	
@@ -23,7 +23,7 @@ public class Address {
 		} catch (UnknownHostException e) {
 			this.ip = null;
 		}
-		setNikename(nickname);
+		setNickname(nickname);
 		setUsername(userTest);
 		setTime(new Timestamp(System.currentTimeMillis()));
 	}
@@ -44,11 +44,11 @@ public class Address {
 	public void setIp(InetAddress ip) {
 		this.ip = ip;
 	}
-	public String getNikename() {
-		return nikename;
+	public String getNickname() {
+		return nickname;
 	}
-	public void setNikename(String nikename) {
-		this.nikename = nikename;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 	public String getUsername() {
 		return username;
@@ -61,7 +61,13 @@ public class Address {
 		return(((int)this.ip.getAddress()[0])& 0xff) + "." + (((int)this.ip.getAddress()[1])& 0xff) + "." + (((int)this.ip.getAddress()[2])& 0xff) + "." + (((int)this.ip.getAddress()[3])& 0xff);
 	}
 	
-	
-	
+	public void setIP(InetAddress iP) {
+		this.ip = iP;
+	}
+
+	public InetAddress getIP() {
+		return this.ip;
+	}
+
 	
 }

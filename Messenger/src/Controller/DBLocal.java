@@ -13,6 +13,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import Model.Account;
+import Model.Address;
+import Model.Message;
+
 
 public class DBLocal {
 	//https://www.tutorialspoint.com/sqlite/sqlite_java.htm
@@ -21,6 +25,8 @@ public class DBLocal {
 	private static final String PATH =  "./";
 	final static protected Connection DB = connectionDB("DBMessenger.db");
 	DBRequestCreate drc = new DBRequestCreate(DB);
+	
+	
 	public DBLocal() {
 		
 		DBRequestCreate drc=new DBRequestCreate(DB);
@@ -49,41 +55,75 @@ public class DBLocal {
 		return c;
 	}
 	
-	protected synchronized void getSpecificKnownUser(String UsernameLogged, String userToSearch) {
-
-		try {
-			Statement stmt = DB.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM knownUsers where usernameLogged = '" + UsernameLogged + "' AND username = '" + userToSearch + "' ;");
-			if (rs.next()) {
-				System.out.println(rs.getString("pseudo"));
-			}
-			stmt.close();
-			rs.close();
-		}catch (SQLException e) {
-			System.out.println("DBlocal: Error getSpecificKnownUser, SQL ERROR");
-			e.printStackTrace();
-		}
-	}
-/*	protected synchronized Address getSpecificKnownUser(String UsernameLogged, String userToSearch) {
+	protected synchronized Address getSpecificKnownUser(String UsernameLogged, String userToSearch) {
 		Address res = null;
 		try {
 			Statement stmt = DB.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT * FROM knownUsers where usernameLogged = '" + UsernameLogged + "' AND username = '" + userToSearch + "' ;");
-			if (rs.next()) {
-				res =  new Address(InetAddress.getByAddress(rs.getBytes("address")), rs.getString("pseudo"), rs.getString("username"));
+			while (rs.next()) {
+				res =  new Address(InetAddress.getByName(rs.getString("address")), rs.getString("pseudo"), rs.getString("username"));
+				System.out.println("DBlocal : usernickname found -> "+rs.getString("pseudo"));
 			}
 			stmt.close();
 			rs.close();
 		}catch (SQLException e) {
-			System.out.println("DBlocal: Error getSpecificKnownUser, SQL ERROR");
+			System.out.println("DBlocal: Error getSpecificKnownUser -> SQL ERROR");
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
-			System.out.println("DBlocal: Error getSpecificKnownUser, Unknown Host Error");
+			System.out.println("DBlocal: Error getSpecificKnownUser -> Unknown Host Error");
 			e.printStackTrace();
 		}
 		return res;
 	}
-	protected synchronized ArrayList<Address> getknownUsers(String UsernameLogged){
+	protected synchronized Account getAccount(String username, String password) {
+		System.out.println("BDLocal : account should be in research.");
+		String sql = "SELECT * FROM account WHERE (username = ?)"; //AND (password = ?);"; //WHERE (username = ?) AND (password = ?) 
+		ResultSet rs = null;
+		String user;
+		String display;
+		String pw;
+		String addr;
+		Address temp;
+		Account account = null;
+		try {
+			PreparedStatement pstmt = DB.prepareStatement(sql);
+			pstmt.setString(1,username);
+			//pstmt.setString(2,password);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				System.out.println("BDLocal : account should be found.");
+				user = rs.getString("username");
+				display = rs.getString("pseudo");
+				pw = rs.getString("password");
+				temp = new Address(null,display,user);
+				account = new Account(user,pw,display,temp);	 
+			}
+			pstmt.close();
+			rs.close();
+		} catch (SQLException e) {
+			System.out.println("DBLocal: Error getAccount creation or execute query");
+			e.printStackTrace();
+		}
+		return account;
+		
+	}
+	protected synchronized void setAccount(Account acc){
+
+		String sql = "INSERT INTO account (username,password,pseudo) VALUES (?,?,?)";
+		try {
+			PreparedStatement pstmt = DB.prepareStatement(sql);
+			pstmt.setString(1, acc.getUsername());
+			pstmt.setString(2, acc.getPassword());
+			pstmt.setString(3, acc.getNickname());
+			pstmt.executeUpdate();
+			pstmt.close();
+		} catch (SQLException e) {
+			System.out.println("DBLocal: Error setAccount");
+			e.printStackTrace();
+		}
+		
+	}
+/*	protected synchronized ArrayList<Address> getknownUsers(String UsernameLogged){
 		ArrayList<Address> temp = new ArrayList<Address>();
 		Statement stmt;
 		try {
@@ -175,7 +215,7 @@ public class DBLocal {
 		}
 		return conv;
 	}
-	
+	*/
 	// id corres isSender isNew ts msg 
 	protected synchronized void setMessage(Message msg, String sender, String receiver) {
 		try {
@@ -184,7 +224,7 @@ public class DBLocal {
 			pstmt.setString(1, sender);
 			pstmt.setString(2, receiver);
 			pstmt.setTimestamp(3, msg.getTimestamp());
-			pstmt.setString(4,msg.getMsg());
+			pstmt.setString(4,msg.getMessage());
 			pstmt.executeUpdate();
 			pstmt.close();
 		} catch (SQLException e) {
@@ -199,8 +239,8 @@ public class DBLocal {
 		try {
 			PreparedStatement pstmt = DB.prepareStatement(sql);
 			pstmt.setString(1, add.getUsername());
-			pstmt.setString(2, add.getPseudo());
-			pstmt.setBytes(3, add.getIP().getAddress());
+			pstmt.setString(2, add.getNickname());
+			pstmt.setString(3, add.getIP().getHostName());
 			pstmt.setString(4,UsernameLogged);
 			pstmt.setTimestamp(5,new Timestamp(System.currentTimeMillis()));
 			pstmt.executeUpdate();
@@ -210,7 +250,63 @@ public class DBLocal {
 			e.printStackTrace();
 		}
 	}
+	//return false when pseudo is not available
+	protected static boolean checkNickname(String nickname) {
+		String sql = "SELECT * FROM account WHERE pseudo = '" + nickname + "';";
+		boolean res = true;
+		try {
+			Statement stmt = DB.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				res = false;
+			}
+			
+			rs.close();
+			stmt.close();
+			
+			
+			
+		} catch (SQLException e) {
+			System.out.println("DBLocale: Error checkPseudo, create statement or execute");
+			e.printStackTrace();
+		}
+		return res;
+	}
+	//return false when username is not available
+	protected static boolean checkUsername(String username) {
+		String sql = "SELECT * FROM account WHERE username = '" + username + "';";
+		boolean res = true;
+		try {
+			Statement stmt = DB.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				res = false;
+			}
+			rs.close();
+			stmt.close();
+			
+			
+			
+		} catch (SQLException e) {
+			System.out.println("DBLocale: Error checkUsername, create statement or execute");
+			e.printStackTrace();
+		}
+		return res;
+	}
+	//update nickname of the other user connected 
+	protected synchronized void updateNickName(String newNickname, String username) {
+		String sql = "UPDATE knownUsers SET pseudo = '" + newNickname + "' where username='" + username + "';";
+		try {
+			Statement stmt = DB.createStatement();
+			stmt.executeUpdate(sql);
+			stmt.close();
+		} catch (SQLException e) {
+			System.out.println("DBLocale: Error createTableKnownUsers, create statement or execute");
+			e.printStackTrace();
+		}
 	
+	}
+	/*
 	protected synchronized void setKnownUser(Address add, String UsernameLogged, Timestamp ts) {
 		String sql = "INSERT INTO knownUsers (username,pseudo,address,usernameLogged,timestamp) VALUES (?,?,?,?,?)";
 		try {
@@ -229,8 +325,8 @@ public class DBLocal {
 	}
 	*/
 	
-	/*
-	protected synchronized void updatePseudoAccount(String username, String new_pseudo) {
+	
+	protected synchronized void updateNicknameAccount(String username, String new_pseudo) {
 		String sql = "UPDATE account SET pseudo = '" + new_pseudo + "' where username='" + username + "';";
 		try {
 			Statement stmt = DB.createStatement();
@@ -241,37 +337,7 @@ public class DBLocal {
 			e.printStackTrace();
 		}
 	}
-	
-	protected synchronized Account getAccount(String username, String password) {
-		String sql = "SELECT * FROM account WHERE (username = ?) AND (password = ?);"; //WHERE (username = ?) AND (password = ?) 
-		ResultSet rs = null;
-		String un;
-		String ps;
-		String pw;
-		Address temp;
-		Account tempA = null;
-		try {
-			PreparedStatement pstmt = DB.prepareStatement(sql);
-			pstmt.setString(1,username);
-			pstmt.setString(2,password);
-			rs = pstmt.executeQuery();
-			rs.next();
-			if ( true) {
-				 un = rs.getString("username");
-				 ps = rs.getString("pseudo");
-				 pw = rs.getString("password");
-				 temp = new Address(InetAddress.getByAddress(Tools.getPcIP()),ps,un);
-				 tempA = new Account(un,pw,ps,temp);	 
-			}
-			pstmt.close();
-			rs.close();
-		} catch (SQLException | UnknownHostException e) {
-			System.out.println("DBLocal: Error getAccount creation or execute query");
-			e.printStackTrace();
-		}
-		return tempA;
-		
-	}
+	/*
 	protected synchronized ArrayList<Address> getAllAccount(){
 		ArrayList<Address> temp = new ArrayList<Address>();
 		Statement stmt;
@@ -473,7 +539,7 @@ public class DBLocal {
 		}
 		
 	}
-	
+	*/
 	protected void vanishDB() {
 		String sql;
 		Statement stmt;
@@ -496,7 +562,7 @@ public class DBLocal {
 		}
 ;
 		
-	}*/
+	}
 
 }
 

@@ -11,35 +11,35 @@ public class Conversation {
 		this.destination = destination;
 	}
 
-	protected ArrayList<Message> getConv() {
+	public ArrayList<Message> getConv() {
 		return conv;
 	}
 
-	protected void setConv(ArrayList<Message> conv) {
+	public void setConv(ArrayList<Message> conv) {
 		this.conv = conv;
 	}
 	
-	protected void addMessage(Message msg) {
+	public void addMessage(Message msg) {
 		this.conv.add(msg);
 	}
 
-	protected Message getMessage(int index) {
+	public Message getMessage(int index) {
 		return this.conv.get(index);
 	}
 	
-	protected Message[] getAllMessages() {
+	public Message[] getAllMessages() {
 		return this.conv.toArray(new Message[this.conv.size()]);
 	}
 	
-	protected Address getDestination() {
+	public Address getDestination() {
 		return destination;
 	}
 
-	protected void setDestination(Address destination) {
+	public void setDestination(Address destination) {
 		this.destination = destination;
 	}
 	
-	protected boolean isEmpty() {
+	public boolean isEmpty() {
 		return this.conv.isEmpty();
 	}
 

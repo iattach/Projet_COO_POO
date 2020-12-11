@@ -4,13 +4,13 @@ import java.sql.Timestamp; //format date (standard date SQL)
 
 public class Message {
 	Boolean isSender; // 1=Sender   0=recipients
-	String message_;
+	String message;
 	Timestamp date;
 	
-	public Message(Boolean isSender, String message_, Timestamp date) {
+	public Message(Boolean isSender, String message, Timestamp date) {
 
 		this.isSender = isSender;
-		this.message_ = message_;
+		this.message = message;
 		this.date = date;
 	}
 		
@@ -22,12 +22,12 @@ public class Message {
 		this.isSender = isSender;
 	}
 
-	public String getMessage_() {
-		return message_;
+	public String getMessage() {
+		return message;
 	}
 
-	public void setMessage_(String message_) {
-		this.message_ = message_;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	public Timestamp getDate() {
@@ -38,7 +38,9 @@ public class Message {
 		this.date = date;
 	}
 
-
+	public Timestamp getTimestamp() {
+		return date;
+	}
 	
 	
 }

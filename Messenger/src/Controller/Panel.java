@@ -6,6 +6,9 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -14,48 +17,66 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import Model.*;
+import Model.Message;
+import Model.Address;
 import Model.Account;
 import Model.TextModel;
 import View.ViewPanel;
 
 /**
- *Controleur pour controler tous les JPanel au gauche
+ * @author machilus
  *
  */
 @SuppressWarnings("serial")
 public class Panel extends JPanel {
+	
+	//view components
 	private ViewPanel vresult;	
+	private ViewPanel viewUsers;
 	private TextModel tmodel;
+	private TextModel tmodelUsers;
 	private JPanel principle;
+	private JTextField username;
+	private JTextField nickName;
+	private JPasswordField pass;
+	private JTextArea message;
+	//change nickname
+	private JTextField nickName1;
+	//message
+	private JComboBox<String> onlineUsers;
+	//Basic settings
 	private DBLocal db;
 	private Application app;
 	private String users;
 	private String mdp;
 	private String displayName;	
-	private JTextField username;
-	private JTextField nickName;
-	private JPasswordField pass;
-	/*change nickname*/
-	private JTextField nickName1;
-	private JTextField nickName2;
+	private	ArrayList<String> connectedUserList = new ArrayList<String>();
 	/**
 	 * @param vuer
 	 * 	construteur qui initialiser tous les bouttons et texts
 	 */
-	@SuppressWarnings("deprecation")
-	public Panel (ViewPanel view,DBLocal db, Application app) {
+	public Panel (ViewPanel view, ViewPanel viewUsers, DBLocal db, Application app) {
 		this.app=app;
-		this.vresult=view;
 		this.db=db;
+		
+		//part showing information 
+		this.vresult=view;
 		tmodel=new TextModel();
-		/*
-		 * lier le vue avec le modele de text
-		 */
+		// connect view with textmodel
 		tmodel.addObserver(this.vresult);
 		tmodel.initJTextArea();
+		
+		//show user list
+		this.viewUsers=viewUsers;
+		tmodelUsers=new TextModel();
+		// connect view with textmodel
+		tmodelUsers.addObserver(this.viewUsers);
+		tmodelUsers.initJTextArea();
+		tmodelUsers.setVisible(false);
 		
 		this.connect();
 		
@@ -128,7 +149,7 @@ public class Panel extends JPanel {
 		this.revalidate();
 	}
 	public void changeDisplayName() {
-		if(users!=null) {
+		if(app.getLoggedAccount()!=null) {
 			tmodel.setJ("Attention !!! Your are changing your display name.");
 			this.remove(principle);
 			
@@ -140,43 +161,19 @@ public class Panel extends JPanel {
 			/*
 			 * partie pour login
 			 */
-			principle.add(new JLabel("Login"),BorderLayout.NORTH);
+			principle.add(new JLabel("Change nickname"),BorderLayout.NORTH);
 			JPanel op=new JPanel(new GridLayout(3,2,3,3));
 			/*
 			 * pour collecter les identifiants 
 			 */
-			op.add(new JLabel("Display Name : "+"    ",JLabel.LEFT));
+			op.add(new JLabel("Nick Name : "+"    ",JLabel.LEFT));
 			nickName1=new JTextField(10);
 			op.add(nickName1);
 			
-			op.add(new JLabel("Confirmed : "+"    ",JLabel.LEFT));
-			nickName2=new JTextField(10);
-			op.add(nickName2);
 			
-			
-			JButton p = new JButton("Changer");
-			p.addActionListener(new ActionListener() {
-				@SuppressWarnings("deprecation")
-				public void actionPerformed(ActionEvent e) {
-					tmodel.setJ("Login");
-					users=username.getText();
-					mdp=pass.getText();
-					username.setText("");
-					pass.setText("");
-					
-				}
-			});
+			JButton p = new JButton("Change");
+			p.addActionListener(new changeNicknameHandler());
 			op.add(p);
-			
-			JButton p1 = new JButton("Sign Up");
-			p1.addActionListener(new ActionListener() {
-				@SuppressWarnings("deprecation")
-				public void actionPerformed(ActionEvent e) {
-					createAccount();
-					
-				}
-			});
-			op.add(p1);
 			
 			principle.add(op,BorderLayout.CENTER);
 			
@@ -184,6 +181,7 @@ public class Panel extends JPanel {
 			
 			this.revalidate();
 		}else {
+			tmodel.setJ("Error : you should connect to your account for changing your nickname !!!");
 			connect();
 		}
 		
@@ -215,7 +213,7 @@ public class Panel extends JPanel {
 		op.add(pass);
 		
 		op.add(new JLabel("Display Name : "+"    ",JLabel.LEFT));
-		JTextField nickName=new JTextField(10);
+		nickName=new JTextField(10);
 		op.add(nickName);
 		
 		JButton p = new JButton("Create account");
@@ -228,28 +226,125 @@ public class Panel extends JPanel {
 		
 		this.revalidate();
 	}
+	public void conversation() {
+		
+		tmodel.setJ("Conversation history");
+		tmodelUsers.setJ("Users Online : ");
+		this.remove(principle);
+		
+		/*
+		 * JPanel principale qui rassemble tous les JPanel
+		 */
+		principle=new JPanel(new BorderLayout());
+		
+		/*
+		 * partie pour login
+		 */
+		JPanel labelUsers = new JPanel(new GridLayout(1,2,1,1));
+		labelUsers.add(new JLabel("Message -> choose user"));
+		onlineUsers=new JComboBox<String>();
+		
+		Collections.sort(connectedUserList, String.CASE_INSENSITIVE_ORDER);
+
+		for(int i=0; i<this.connectedUserList.size();i++) {
+			onlineUsers.addItem(connectedUserList.get(i));
+		}
+		labelUsers.add(onlineUsers);
+		principle.add(labelUsers,BorderLayout.NORTH);
+		//JPanel op=new JPanel(new BorderLayout());
+		//JPanel op=new JPanel(new GridLayout(3,1,1,1));
+		/*
+		 * pour collecter les identifiants 
+		 */
+		       
+		message=new JTextArea();
+		message.setLineWrap(true);        
+		message.setWrapStyleWord(true);    
+		message.setSize(250, 300);
+		JScrollPane jv=new JScrollPane(message);
+		jv.setSize(300, 100);
+		jv.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		principle.add(jv, BorderLayout.CENTER);
+		
+		JButton p = new JButton("Send");
+		p.addActionListener(new conversationHandler());
+
+		
+		principle.add(p,BorderLayout.SOUTH);
+		principle.setSize(250,200);
+
+		this.add(principle);
+		
+		tmodelUsers.setVisible(true);
+		
+		this.revalidate();
+	}
 	
 	
 	public void update(String s) {
 		tmodel.setJ(tmodel.getJ().getText()+s);
 	}
+	public void setVisibleUsers(Boolean visible) {
+		this.tmodelUsers.setVisible(visible);
+	}
+	public void updateUsers(ArrayList<String> connectedUserList) {
+		this.connectedUserList=connectedUserList;
+		Collections.sort(connectedUserList, String.CASE_INSENSITIVE_ORDER);
+		onlineUsers.removeAllItems();
+		
+		String s="Users Online : \n";
+		for(int i=0;i<this.connectedUserList.size();i++) {
+			s+=connectedUserList.get(i)+"\n";
+			onlineUsers.addItem(connectedUserList.get(i));
+		}
+		
+		tmodelUsers.setJ(s);
+		
+	}
+	public void updateMessage(Message message) {
+		
+		tmodel.setJ(tmodel.getJ().getText()+"\n"+message.getMessage()+"\n"+message.getTimestamp());
+		
+	}
 	public void closeApplicaiton(){
 		System.exit(0);
 	}
-	
+//==================================================================================
+//==================== handlers ====================================================
 	private class connectHandler implements ActionListener{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String user = username.getText();
-			String password = pass.getText();
-			String nickname= "test";
-			Address add = new Address( nickname,user);
-			Account acc =  new Account(user,password,nickname,add);
+			String password = pass.getPassword().toString();
 			
+			Account acc =  db.getAccount(user, password);
 			
-			app.setSocket(new SocketInternalNetwork(acc,app.getUI()));
-			
+			if (acc == null) {
+				tmodel.setJ("Error of connection : account not found !!!");
+			}
+			else {
+				
+				acc.setAddress(new Address(acc.getNickname(),acc.getUsername())); //si on utilise getAccount2()
+				//System.out.println(acc.getAddress().getIP()); //test
+				app.setLoggedAccount(acc);
+				//DBCentrale DBc  = new DBCentrale(acc.getUsername());
+				//DBc.PullDB();
+				/*while (!DBCentrale.finPullDB) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e1) {
+						
+						e1.printStackTrace();
+					}
+				}*/
+				//rzo
+				app.setSocket(new SocketInternalNetwork(acc,app.getUI()));
+				
+				
+				conversation();
+
+			}
 			
 		}
 		
@@ -258,30 +353,48 @@ public class Panel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			String user = username.getText();
+			String password = pass.getPassword().toString();
+			String nickname = null;
+			if(!nickName.getText().isEmpty()) {
+				nickname= nickName.getText();
+			}else {
+				nickname=user;
+			}
 			
-			boolean unique_u = true;//DBCentrale.checkUsername(username_);
-			boolean unique_p = true;//DBCentrale.checkPseudo(pseudo_);
+			boolean unique_user = DBLocal.checkUsername(user);//dbcentrale
+			boolean unique_nick = DBLocal.checkNickname(nickname);//dbcentrale
 			
-			if (unique_u && unique_p) {
-				Address add = new Address( displayName,users);
-				Account acc =  new Account(users,mdp,displayName,add);
+			if (unique_user && unique_nick) {
+				Address add = null ; 
+				Account acc =  null;
+				if(displayName==null) {
+					add = new Address( user,user);
+					acc =  new Account(user,password,user,add);
+					
+				}else {
+					add = new Address( nickname,user);
+					acc =  new Account(users,password,nickname,add);
+					
+				}
 				
-				//db.setAccount(acc);
+				
+				db.setAccount(acc);
 				//DBCentrale.addAccount(acc);
-				//db.setKnownUser(add,co.getLoggedAccount().getUsername());
-				//db.setKnownUser(add,acc.getUsername()); //il se connait lui-même
-				tmodel.setJ("Your account "+displayName+" has been created successfully !!!");
+				//db.setKnownUser(add,app.getLoggedAccount().getUsername());
+				db.setKnownUser(add,acc.getUsername()); //il se connait lui-même
+				tmodel.setJ("Your account "+acc.getNickname()+" has been created successfully !!!");
 				connect();
 			}
 			else {
-				if (!unique_u && !unique_p) {
+				if (!unique_user && !unique_nick) {
 					tmodel.setJ("Error : account already exists !!!");
 				}
-				if (!unique_u) {
+				if (!unique_user) {
 					tmodel.setJ("Error : username already exists !!!");
 				}
-				if (!unique_p) {
-					tmodel.setJ("Error : password already exists !!!");
+				if (!unique_nick) {
+					tmodel.setJ("Error : nickname already exists !!!");
 				}
 
 			}
@@ -289,43 +402,64 @@ public class Panel extends JPanel {
 		}
 		
 	}
-	private class modifyNicknameHandler implements ActionListener{
+	private class changeNicknameHandler implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			String nickNameString = nickName1.getText();
+			
+			boolean unique = DBLocal.checkNickname(nickNameString);//dbcentrale
+			if (unique) {
+				String old_name = app.getLoggedAccount().getNickname();
+				//network
+				app.getSocket().sendNewNickname(nickNameString, old_name);
+				//logged account
+				Address add=new Address(nickNameString,app.getLoggedAccount().getUsername());
+				Account acc=new Account(app.getLoggedAccount().getUsername(),app.getLoggedAccount().getPassword(),nickNameString,add);
+				app.setLoggedAccount(acc);
+				//db
+				//change nickname because he is himself 
+				db.updateNickName(nickNameString, app.getLoggedAccount().getUsername()); //
+				//DBCentrale dbc = new DBCentrale(app.getLoggedAccount().getUsername());
+				//dbc.changePseudo(app.getLoggedAccount().getUsername(), nickNameString);
+				db.updateNicknameAccount(app.getLoggedAccount().getUsername(), nickNameString);
+				
+				
+				tmodel.setJ("Your account's nickname has been changed successfully .");
+				connectedUserList.remove(old_name);
+				connectedUserList.add(nickNameString);
+				conversation();
+				updateUsers(connectedUserList);
+			}
+			else {
+				tmodel.setJ("Error : the nickname already exists !!!");
+				changeDisplayName();
+
+			}
+			
+			
+		}
+		
+	}
+	private class conversationHandler implements ActionListener{
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			
-			if(nickName1.equals(nickName2)) {
-				String nickName1String = nickName1.getText();
-				boolean unique = true;//DBCentrale.checkPseudo(pseudo_);
-				if (unique) {
-					/*String old_psdo = co.getLoggedAccount().getPseudo();
-					//rzo
-					co.getSocket().sendNewPseudo(pseudo_, old_psdo);
-					//logged account
-					Address add=new Address(pseudo_,co.getLoggedAccount().getUsername());
-					Account acc=new Account(co.getLoggedAccount().getUsername(),co.getLoggedAccount().getPassword(),pseudo_,add);
-					co.setLoggedAccount(acc);
-					//db
-					db.updatePseudo(pseudo_, co.getLoggedAccount().getUsername()); //modifier le pseudo de son compte dans knownUsers (car on se connait soi-meme)
-					DBCentrale dbc = new DBCentrale(co.getLoggedAccount().getUsername());
-					dbc.changePseudo(co.getLoggedAccount().getUsername(), pseudo_);
-					db.updatePseudoAccount(co.getLoggedAccount().getUsername(), pseudo_);
-					*/
-					
-					tmodel.setJ("Your account's nickname has been changed successfully .");
-					//changerpseudopage.updateUI();
-				}
-				else {
-					tmodel.setJ("Error : the nickname already exists !!!");
-					changeDisplayName();
-
-				}
-			}else {
-				tmodel.setJ("Error : the nickname should be the same !!!");
-				changeDisplayName();
-			}
+			String receiver = (String)onlineUsers.getSelectedItem();
+			
+			Message mes=new Message(true,message.getText(),new Timestamp(System.currentTimeMillis()));
+			app.getConversation().addMessage(mes);
+			app.getSocket().sendMessage(mes,receiver);
+			tmodel.setJ(message.getText());
+			message.setText("");
 			
 		}
 		
 	}
+	public void debug() {
+		this.db.vanishDB();
+	}
+	
 }

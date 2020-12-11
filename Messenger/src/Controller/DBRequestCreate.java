@@ -20,7 +20,7 @@ public class DBRequestCreate {
                 + "    usernameLogged VARCHAR(255) NOT NULL,\n"
                 + "    username VARCHAR(255) NOT NULL,\n"
                 + "    pseudo VARCHAR(255) NOT NULL,\n"
-                + "    address blob NOT NULL,\n"
+                + "    address VARCHAR(255) NOT NULL,\n"
                 + "    timestamp TIMESTAMP(3) NOT NULL,\n"
                 + "    PRIMARY KEY(usernameLogged,username)"
                 + ");";
@@ -60,7 +60,7 @@ public class DBRequestCreate {
 	protected synchronized void  createTableAccount() {
 		String sql = "CREATE TABLE IF NOT EXISTS account (\n"
                 + "    username VARCHAR(255) PRIMARY KEY,\n"
-                + "    password VARCHAR(255) NOT NULL,\n"
+                + "    password VARCHAR(255) ,\n"
                 + "    pseudo VARCHAR(255) NOT NULL\n"
                 + ");";
 		try {

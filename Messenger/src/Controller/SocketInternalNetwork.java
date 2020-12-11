@@ -30,9 +30,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import Model.Message;
+import Model.InstanceTool;
 import Model.Account;
 import Model.Address;
-import Model.InstanceTool;
+
 
 
 public class SocketInternalNetwork {
@@ -81,7 +83,7 @@ public class SocketInternalNetwork {
 			e.printStackTrace();
 		}
 		System.out.println("InternalSocket: BROADCAST SENT");
-		String message = userOnline.getNickname() + "\n" + userOnline.getUsername() + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
+		String message = InstanceTool.Ident_Code.Connected.toString() + "\n" + userOnline.getNickname() + "\n" + userOnline.getUsername() + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
 		try {
 			/*Integer.parseInt(accountLogged.getUsername())*/
 			List<InetAddress> listBroadAddress=this.listAllBroadcastAddresses();			
@@ -89,12 +91,53 @@ public class SocketInternalNetwork {
 				DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),listAllBroadcastAddresses().get(i),InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
 				this.UDP_SEND_Socket.send(outPacket);
 			}
-			System.out.println("Infomation of User account has been sent");
+			System.out.println("InternalSocket : Infomation of User account has been sent");
 		} catch ( IOException e) {
 			System.out.println("InternalSocket: Error dans sendConnected");
 			e.printStackTrace();
 		}
 		
+		
+	}
+	public void sendNewNickname(String newNickname, String oldNickname) {
+		try {
+			this.UDP_SEND_Socket.setBroadcast(true);
+			String message = InstanceTool.Ident_Code.New_Name.toString() + "\n" + newNickname + "\n" + this.accountLogged.getUsername() + "\n" + oldNickname + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
+			List<InetAddress> listBroadAddress=this.listAllBroadcastAddresses();			
+			for(int i=0; i<listBroadAddress.size();i++) {
+				DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),listAllBroadcastAddresses().get(i), InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
+				this.UDP_SEND_Socket.send(outPacket);
+			}
+			
+		} catch (IOException e) {
+			System.out.println("InternalSocket: Error dans sendNewPseudo");
+			e.printStackTrace();
+		}
+		
+	}
+	public void sendMessage(Message msg, String receiver) {
+		Address res = null;
+
+		synchronized (connectedUserList) {
+			for (Map.Entry<String,Address> entry : connectedUserList.entrySet()) {
+				Address tmp = entry.getValue();
+				 if(tmp.getUsername().equals(receiver)) {
+					res= tmp;
+				 }
+			}
+		}
+		String message = InstanceTool.Ident_Code.Message.toString() + "\n" +  accountLogged.getUsername() + "\n" + receiver + "\n" + msg.getTimestamp().toString() + "\n" + msg.getMessage();
+		//System.out.println("InternalSocket: Message envoyé : \n" + message + "\n InternalSocket: Fin du message");
+		InetAddress addrRcv = res.getIP();
+		try {
+			Socket TCP_SEND_Socket = new Socket(addrRcv, InstanceTool.PortNumber.TCP_RCV_PORT.getValue());
+			PrintWriter out = new PrintWriter(TCP_SEND_Socket.getOutputStream(),true);
+			out.println(message);
+			TCP_SEND_Socket.close();
+		} catch (IOException e) {
+			System.out.println("InternalSocket: Error Send message création Socket");
+			e.printStackTrace();
+		}
 		
 	}
 	//https://www.baeldung.com/java-broadcast-multicast pour le broadcast
@@ -119,20 +162,25 @@ public class SocketInternalNetwork {
 
 	public ConcurrentHashMap<String,Address> getUserList() {
 
-		return connectedUserList;
+		return this.connectedUserList;
 	}
-	
+	/*public void updateUserList() {
+		synchronized(this.listConnectedUsers) {
+			this.connectedUserList.put(Username,new Address(clientAddress,Pseudo,Username ));
+		}
+	}*/
 	public void startReceiverThread() {
 		System.out.println("InternalSocket: starting RECEIVER UDP AND TCP THREADS . . .");
 		//this.TCP_RCV_Thread = new ThreadReceiverTCP(this.db, accountLogged.getUsername(),this.connectedUserList, this.ui);
 		this.UDP_RCV_Thread = new ThreadReceiverUDP(this.connectedUserList, this.db, this.UDP_SEND_Socket, accountLogged, this.ui);
+		this.TCP_RCV_Thread = new ThreadReceiverTCP(this.db, accountLogged.getUsername(),this.connectedUserList, this.ui);
 	}
+	
 
 	public synchronized void  setUserList(ConcurrentHashMap<String,Address> ul) {
 		
 		this.connectedUserList = ul;
 	}
-
 
 
 }

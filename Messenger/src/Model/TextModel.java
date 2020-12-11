@@ -15,7 +15,6 @@ public class TextModel extends Observable{
 	
 	public void initJTextArea() {
 		this.j=new JTextArea();
-		j.setText("Attend pour les résultat...............");
 		j.setEditable(false);
 		setChanged();
 		notifyObservers();
@@ -27,6 +26,12 @@ public class TextModel extends Observable{
 	}
 	public void setJ(String t) {
 		this.j.setText(t);
+		setChanged();
+		notifyObservers();
+	}
+	
+	public void setVisible(Boolean visible) {
+		this.j.setVisible(visible);
 		setChanged();
 		notifyObservers();
 	}

@@ -76,6 +76,11 @@ public class Menu extends JMenuBar{
 		//-menuConv
 		menuConv1=new JMenuItem("Change conversation");
 		menuConv2=new JMenuItem("Connected Users");
+		menuConv2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pannel.debug();
+			}
+		});
 		//---------------------------------------------------------------
 		menuSys.add(menuSys1);
 		menuSys.add(menuSys2);

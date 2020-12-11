@@ -10,16 +10,18 @@ import java.util.Enumeration;
 import java.util.Map;
 
 public class InstanceTool {
-	
-	/*public static enum Msg_Code{
+	//Make sure the message is correct
+	public static enum Ident_Code{
 		Connected,
-		Disconnected,
+		Exit,
 		Message,
-		New_Pseudo,
+		New_Name,
+		Con_SYN_Ack,
 		Con_Ack,
 		CoList,
 		CoSpecificList
-	}*/
+	}
+	//port number is set in default
 	public static enum PortNumber{
 		UDP_RCV_PORT(6666),UDP_SEND_PORT(6667),TCP_RCV_PORT(6668),TCP_SEND_PORT(6669),HTTP_RCV_PORT(6670);
 		int value;

@@ -15,15 +15,16 @@ public class Application{
 	
 	private Conversation conversation;
 	
+	
+
 	private DBLocal db;
 	
 	private SocketInternalNetwork socket;
-	/*private Account loggedAccount;
+
+	private Account loggedAccount;
+
 	
-	//private ... server;	
 	
-	
-	*/
 	
 	
 	
@@ -60,24 +61,29 @@ public class Application{
 	}
 	
 	public void setSocket(SocketInternalNetwork so) {
-		this.socket=so;
+		if(this.socket==null) {
+			this.socket=so;
+		}	
+	}
+	
+	public void setUserListSocket() {
+		
 	}
 	
 	public UserInterface getUI() {
 		return ui;
 	}
-	/*public InternalSocket getSocket() {
-		return socket;
-	}
-	
-	
 	
 	public Conversation getConversation() {
 		return conversation;
 	}
+
+	public void setConversation(Conversation conversation) {
+		this.conversation = conversation;
+	}
 	
-	public void setConversation(Conversation conv) {
-		this.conversation=conv;
+	public SocketInternalNetwork getSocket() {
+		return socket;
 	}
 	
 	public Account getLoggedAccount() {
@@ -85,8 +91,8 @@ public class Application{
 	}
 	
 	
-	public void setLoggedAccount(Account acc) {
-		this.loggedAccount=acc;
-	}*/
+	public void setLoggedAccount(Account loggedAccount) {
+		this.loggedAccount=loggedAccount;
+	}
 
 }
