@@ -448,7 +448,7 @@ public class Panel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			
 			String receiver = (String)onlineUsers.getSelectedItem();
-			
+			System.out.println("Panel : conversationHandler "+receiver);
 			Message mes=new Message(true,message.getText(),new Timestamp(System.currentTimeMillis()));
 			app.getConversation().addMessage(mes);
 			app.getSocket().sendMessage(mes,receiver);

@@ -102,10 +102,10 @@ public class ThreadReceiverUDP extends Thread {
 					System.out.println("ThreadReceiverUDP: line -> "+line);
 					if (line.contains(InstanceTool.Ident_Code.Connected.toString())) {
 						System.out.println("ThreadReceiverUDP: Socket received -> Type : Connected");
-						System.out.println("ThreadReceiverUDP: Connected received: " + message +" from " + clientAddress.getAddress()[0] + "." + clientAddress.getAddress()[1] + "." + clientAddress.getAddress()[2] + "." + clientAddress.getAddress()[3]);
+						System.out.println("ThreadReceiverUDP: Connected received: " + message +" from " + clientAddress.getHostAddress()+ "." + clientAddress.getAddress()[1] + "." + clientAddress.getAddress()[2] + "." + clientAddress.getAddress()[3]);
 						String nickName = reader.readLine();
 						String userName = reader.readLine();
-						if (!userName.equals(onlineUser.getUsername())) {
+						if (!userName.equals(onlineUser.getUsername())&&!this.listConnectedUsers.containsKey(userName)) {
 							synchronized(this.listConnectedUsers) {
 								
 								this.listConnectedUsers.put(userName,new Address(clientAddress,nickName,userName ));
@@ -133,7 +133,7 @@ public class ThreadReceiverUDP extends Thread {
 							String newNickname = reader.readLine();
 							String username = reader.readLine();
 							reader.readLine();
-							if (!username.equals(onlineUser.getUsername())) {
+							if (!username.equals(onlineUser.getUsername())&&!this.listConnectedUsers.containsKey(username)) {
 								this.listConnectedUsers.put(username,new Address(InetAddress.getByAddress(clientAddress.getAddress()),newNickname, username));
 								
 								this.db.updateNickName(newNickname, username);

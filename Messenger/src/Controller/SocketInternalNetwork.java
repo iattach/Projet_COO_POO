@@ -121,8 +121,10 @@ public class SocketInternalNetwork {
 		synchronized (connectedUserList) {
 			for (Map.Entry<String,Address> entry : connectedUserList.entrySet()) {
 				Address tmp = entry.getValue();
+				System.out.println("SocketInternalNetwork : Entry username->"+tmp.getUsername()+" nickname->"+tmp.getNickname()+" ip->"+tmp.getIp().getHostAddress());
 				 if(tmp.getUsername().equals(receiver)) {
 					res= tmp;
+					System.out.println("SocketInternalNetwork : (Res) Entry username->"+res.getUsername()+" nickname->"+res.getNickname()+" ip->"+res.getIp().getHostAddress());
 				 }
 			}
 		}
@@ -151,11 +153,12 @@ public class SocketInternalNetwork {
 	        if (networkInterface.isLoopback() || !networkInterface.isUp()) {
 	            continue;
 	        }
-
+	        
 	        networkInterface.getInterfaceAddresses().stream() 
 	          .map(a -> a.getBroadcast())
 	          .filter(Objects::nonNull)
 	          .forEach(broadcastList::add);
+	        
 	    }
 	    return broadcastList;
 	}
