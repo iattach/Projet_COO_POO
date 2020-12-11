@@ -115,6 +115,12 @@ public class SocketInternalNetwork {
 		}
 		
 	}
+	public void end() {
+		this.sendDisconnected(accountLogged);
+		//this.notifyDiscoServer(accountLogged);
+		this.TCP_RCV_Thread.setStop();
+		this.UDP_RCV_Thread.setStop();
+	}
 	public void sendMessage(Message msg, String receiver) {
 		Address res = null;
 
@@ -183,6 +189,20 @@ public class SocketInternalNetwork {
 	public synchronized void  setUserList(ConcurrentHashMap<String,Address> ul) {
 		
 		this.connectedUserList = ul;
+	}
+	
+	public void sendDisconnected(Account loggedAccount) {
+		String message = InstanceTool.Ident_Code.Exit.toString() + "\n" + loggedAccount.getUsername() + "\n" + loggedAccount.getNickname()+ "\n" + (new Timestamp(System.currentTimeMillis())).toString();
+		try {
+			DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),listAllBroadcastAddresses().get(0), InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
+			this.UDP_SEND_Socket.send(outPacket);
+			this.UDP_SEND_Socket.close();
+		} catch ( IOException e) {
+			System.out.println("InternalSocket: Error in sendDisconnected");
+			e.printStackTrace();
+		}
+		
+
 	}
 
 

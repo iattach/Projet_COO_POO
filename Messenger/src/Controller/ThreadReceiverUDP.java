@@ -45,11 +45,11 @@ public class ThreadReceiverUDP extends Thread {
 		this.start();
 		
 	}
-	/*
+	
 	public void setStop() {
 		this.end = true;
 	}
-	*/
+	
 	//UDP returns a message which contains the current user logged , like  ACK for SYN, so the other uses know that this user is already connected
 	private void sendSYNACKConnected(InetAddress addr, String nickName, String userName) {
 		
@@ -102,7 +102,7 @@ public class ThreadReceiverUDP extends Thread {
 					System.out.println("ThreadReceiverUDP: line -> "+line);
 					if (line.contains(InstanceTool.Ident_Code.Connected.toString())) {
 						System.out.println("ThreadReceiverUDP: Socket received -> Type : Connected");
-						System.out.println("ThreadReceiverUDP: Connected received: " + message +" from " + clientAddress.getHostAddress()+ "." + clientAddress.getAddress()[1] + "." + clientAddress.getAddress()[2] + "." + clientAddress.getAddress()[3]);
+						System.out.println("ThreadReceiverUDP: Connected received: " + message +" from " + clientAddress.getHostAddress());
 						String nickName = reader.readLine();
 						String userName = reader.readLine();
 						if (!userName.equals(onlineUser.getUsername())&&!this.listConnectedUsers.containsKey(userName)) {
@@ -113,7 +113,6 @@ public class ThreadReceiverUDP extends Thread {
 								this.sendSYNACKConnected(clientAddress,onlineUser.getNickname(), onlineUser.getUsername());
 							}
 						}
-						ui.update(clientAddress+" "+nickName+" "+userName+"\n");
 	
 					}else if (line.contains(InstanceTool.Ident_Code.Exit.toString())) {
 						System.out.println("ThreadReceiverUDP: Exit received: " + message);
