@@ -77,7 +77,7 @@ public class Panel extends JPanel {
 		tmodelUsers.addObserver(this.viewUsers);
 		tmodelUsers.initJTextArea();
 		tmodelUsers.setVisible(false);
-
+		
 		this.connect();
 
 	}
@@ -139,6 +139,8 @@ public class Panel extends JPanel {
 			// rzo
 			app.getSocket().end();
 			app.setLoggedAccount(null);
+			
+			this.db.vanishDB();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e1) {
@@ -148,7 +150,10 @@ public class Panel extends JPanel {
 		}
 
 		tmodel.setJ("Sign out successfully !");
-
+		
+		//init connected userlist
+		this.connectedUserList=new ArrayList<String>();
+		
 		this.remove(principle);
 
 		this.connect();
@@ -333,7 +338,12 @@ public class Panel extends JPanel {
 	}
 
 	public void closeApplicaiton() {
+		this.signOut();
 		System.exit(0);
+	}
+	
+	public void conversationHistory() {
+		
 	}
 
 //==================================================================================
@@ -350,7 +360,9 @@ public class Panel extends JPanel {
 			if (acc == null) {
 				tmodel.setJ("Error of connection : account not found !!!");
 			} else {
-
+				//init connected userlist
+				connectedUserList=new ArrayList<String>();
+				
 				acc.setAddress(new Address(acc.getNickname(), acc.getUsername())); // si on utilise getAccount2()
 				// System.out.println(acc.getAddress().getIP()); //test
 				app.setLoggedAccount(acc);

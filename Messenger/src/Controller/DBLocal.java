@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import Model.Account;
 import Model.Address;
+import Model.Conversation;
 import Model.Message;
 
 
@@ -123,7 +124,7 @@ public class DBLocal {
 		}
 		
 	}
-/*	protected synchronized ArrayList<Address> getknownUsers(String UsernameLogged){
+	protected synchronized ArrayList<Address> getknownUsers(String UsernameLogged){
 		ArrayList<Address> temp = new ArrayList<Address>();
 		Statement stmt;
 		try {
@@ -137,9 +138,9 @@ public class DBLocal {
 			}
 			while(rs.next()) {
 				String username = rs.getString("username");
-				String pseudo = rs.getString("pseudo");
+				String nickname = rs.getString("pseudo");
 				byte[] address = rs.getBytes("address");
-				temp.add(new Address(InetAddress.getByAddress(address), pseudo, username));
+				temp.add(new Address(InetAddress.getByAddress(address), nickname, username));
 			}
 			rs.close();
 		    stmt.close();
@@ -154,7 +155,7 @@ public class DBLocal {
 		
 	}
 	
-
+	
 	private synchronized Address getUserAddress(String userLogged,String corres) throws IOException {
 		Iterator<Address> iter = this.getknownUsers(userLogged).iterator();
 
@@ -215,7 +216,7 @@ public class DBLocal {
 		}
 		return conv;
 	}
-	*/
+	
 	// id corres isSender isNew ts msg 
 	protected synchronized void setMessage(Message msg, String sender, String receiver) {
 		try {
@@ -416,19 +417,6 @@ public class DBLocal {
 		
 	}
 	
-	protected synchronized void updatePseudo(String new_Pseudo, String username) {
-		String sql = "UPDATE knownUsers SET pseudo = '" + new_Pseudo + "' where username='" + username + "';";
-		try {
-			Statement stmt = DB.createStatement();
-			stmt.executeUpdate(sql);
-			stmt.close();
-		} catch (SQLException e) {
-			System.out.println("DBLocal: Error createTableKnownUsers, create statement or execute");
-			e.printStackTrace();
-		}
-	
-	}
-	
 	
 	protected ResultSet getRSAllMessageAboveTS(Timestamp ts) {
 		ResultSet rs = null;
@@ -555,7 +543,9 @@ public class DBLocal {
 			sql = "DROP TABLE knownUsers";
 			stmt = DB.createStatement();
 			stmt.executeUpdate(sql);
-			DB.close();
+			
+			drc.create();
+			//DB.close();
 		} catch (SQLException e) {
 			System.out.println("DBLocal: Error vanishDB creation or execute query");
 			e.printStackTrace();

@@ -22,7 +22,7 @@ public class Menu extends JMenuBar{
 	private ViewPanel vresult;
 	private TextModel tmodel;
 	//----------------------------
-	private JMenu menuSys,menuConv;
+	private JMenu menuSys,menuConv,menuDebug;
 	private JMenuItem menuSys1,menuSys2,menuSys3,menuSys4,menuSys5;
 	private JMenuItem menuConv1,menuConv2;
 	/**
@@ -41,6 +41,12 @@ public class Menu extends JMenuBar{
 		//--------------------------------------------------------------
 		menuSys=new JMenu("System");
 		menuConv=new JMenu("Conversation");
+		menuDebug=new JMenu("Debug");
+		menuDebug.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pannel.debug();
+			}
+		});
         //-menuSys
 		menuSys1=new JMenuItem("Sign out");
 		menuSys1.addActionListener(new ActionListener() {
@@ -80,12 +86,13 @@ public class Menu extends JMenuBar{
 				pannel.conversation();
 			}
 		});
-		menuConv2=new JMenuItem("Connected Users");
+		menuConv2=new JMenuItem("History");
 		menuConv2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				pannel.debug();
+				pannel.conversationHistory();
 			}
 		});
+		
 		//---------------------------------------------------------------
 		menuSys.add(menuSys1);
 		menuSys.add(menuSys2);
@@ -98,6 +105,7 @@ public class Menu extends JMenuBar{
 		
 		this.add(menuSys);
 		this.add(menuConv);
+		this.add(menuDebug);
 	}
 	
 }
