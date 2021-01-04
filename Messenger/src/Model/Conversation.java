@@ -18,7 +18,9 @@ public class Conversation {
 	public void setConv(ArrayList<Message> conv) {
 		this.conv = conv;
 	}
-	
+	public int getConvSize() {
+		return this.conv.size();
+	}
 	public void addMessage(Message msg) {
 		this.conv.add(msg);
 	}

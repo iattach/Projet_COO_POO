@@ -3,6 +3,8 @@ package Controller;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +20,7 @@ import View.ViewPanel;
 
 public class UserInterface extends JFrame{
 	
-	Panel panel;
+	UserInterfacePanel userInterfacePanel;
 	ViewPanel view;
 	ViewPanel viewUsers;
 	JMenuBar jmb;
@@ -34,9 +36,9 @@ public class UserInterface extends JFrame{
 		//panel
 		JPanel contenant = new JPanel();
 		contenant.setLayout(new BorderLayout());
-		panel = new Panel(view,viewUsers,db,app);
-		panel.setMinimumSize(new Dimension(200,150));
-		contenant.add(panel, BorderLayout.NORTH);
+		userInterfacePanel = new UserInterfacePanel(view,viewUsers,db,app);
+		userInterfacePanel.setMinimumSize(new Dimension(200,150));
+		contenant.add(userInterfacePanel, BorderLayout.NORTH);
 		
 		jv=new JScrollPane(view.getT());
 		jv.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -48,7 +50,7 @@ public class UserInterface extends JFrame{
 		jvu.setMinimumSize(new Dimension(30,150));
 		contenant.add(jvu, BorderLayout.EAST);
 		//menubar
-		this.jmb=new Menu(view,panel);
+		this.jmb=new UserInterfaceMenu(view,userInterfacePanel);
 		this.setJMenuBar(jmb);
 		
 		this.setContentPane(contenant);
@@ -56,12 +58,17 @@ public class UserInterface extends JFrame{
 		this.setResizable(true);
 		this.pack();
 		
-		
+		this.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e){
+            	userInterfacePanel.closeApplicaiton();
+            	System.exit(0);
+            }
+        });
 	}
 
 	
 	public void update(String s) {
-		this.panel.update(s);
+		this.userInterfacePanel.update(s);
 	}
 
 
@@ -70,11 +77,11 @@ public class UserInterface extends JFrame{
 		for (Map.Entry<String,Address> entry : listConnectedUsers.entrySet()) { 
 			connectedUserList.add(entry.getValue().getNickname());
 		}
-		this.panel.updateUsers(connectedUserList);
+		this.userInterfacePanel.updateUsers(connectedUserList);
 	}
 	
-	public void updateMessage(Message message) {
-		this.panel.updateMessage(message);
+	public void updateMessage(Message message,String sender, String receiver) {
+		this.userInterfacePanel.updateMessage(message,sender,receiver);
 	}
 
 	

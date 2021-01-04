@@ -142,7 +142,7 @@ public class ThreadReceiverTCP extends Thread {
 					}
 					Message message = new Message(false, messageText, ts);
 					this.dbl.setMessage(message, sender, receiver);
-					this.ui.updateMessage(message);
+					this.ui.updateMessage(message,sender,receiver);
 				} else {
 					System.out.println("ThreadSocketChild " + n + " : The receiver can not be the sender himself");
 				}

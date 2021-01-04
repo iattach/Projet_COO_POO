@@ -15,11 +15,12 @@ public class DBRequestCreate {
 		this.createTableConversations();
 		this.createTableAccount();
 	}
-	protected synchronized void createTableKnownUsers() {
+
+	public synchronized void createTableKnownUsers() {
 		String sql = "CREATE TABLE IF NOT EXISTS knownUsers (\n"
                 + "    usernameLogged VARCHAR(255) NOT NULL,\n"
                 + "    username VARCHAR(255) NOT NULL,\n"
-                + "    pseudo VARCHAR(255) NOT NULL,\n"
+                + "    nickname VARCHAR(255) NOT NULL,\n"
                 + "    address VARCHAR(255) NOT NULL,\n"
                 + "    timestamp TIMESTAMP(3) NOT NULL,\n"
                 + "    PRIMARY KEY(usernameLogged,username)"
@@ -30,14 +31,14 @@ public class DBRequestCreate {
 			System.out.println("DBLocal: table created successfully");
 			stmt.close();
 		} catch (SQLException e) {
-			System.out.println("DBLocal: Error createTableKnownUsers, create statement or execute");
+			System.out.println("DBLocal/Central: Error createTableKnownUsers, create statement or execute");
 			e.printStackTrace();
 		}
 		
 	
 	}
 	
-	protected synchronized void  createTableConversations() {
+	public synchronized void  createTableConversations() {
 		String sql = "CREATE TABLE IF NOT EXISTS conversations (\n"
                 + "    sender VARCHAR(255) NOT NULL,\n"
                 + "    receiver VARCHAR(255) NOT NULL,\n"
@@ -50,26 +51,27 @@ public class DBRequestCreate {
 			stmt.execute(sql);
 			stmt.close();
 		} catch (SQLException e) {
-			System.out.println("DBLocal: Error createTableKnownUsers, create statement or execute");
+			System.out.println("DBLocal/Central: Error createTableKnownUsers, create statement or execute");
 			e.printStackTrace();
 		}
 		
 	
 	}
 	
-	protected synchronized void  createTableAccount() {
+	public synchronized void  createTableAccount() {
 		String sql = "CREATE TABLE IF NOT EXISTS account (\n"
                 + "    username VARCHAR(255) PRIMARY KEY,\n"
                 + "    password VARCHAR(255) ,\n"
-                + "    pseudo VARCHAR(255) NOT NULL\n"
+                + "    nickname VARCHAR(255) NOT NULL\n"
                 + ");";
 		try {
 			Statement stmt = DB.createStatement();
 			stmt.execute(sql);
 			stmt.close();
 		} catch (SQLException e) {
-			System.out.println("DBLocal: Error createTableKnownUsers, create statement or execute");
+			System.out.println("DBLocal/Central: Error createTableKnownUsers, create statement or execute");
 			e.printStackTrace();
 		}
 	}
+	
 }

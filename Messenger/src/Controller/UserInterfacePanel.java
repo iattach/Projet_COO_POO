@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -23,6 +24,7 @@ import javax.swing.JTextField;
 
 import Model.Message;
 import Model.Address;
+import Model.Conversation;
 import Model.Account;
 import Model.TextModel;
 import View.ViewPanel;
@@ -32,7 +34,7 @@ import View.ViewPanel;
  *
  */
 @SuppressWarnings("serial")
-public class Panel extends JPanel {
+public class UserInterfacePanel extends JPanel {
 
 	// view components
 	private ViewPanel vresult;
@@ -59,7 +61,7 @@ public class Panel extends JPanel {
 	/**
 	 * @param vuer construteur qui initialiser tous les bouttons et texts
 	 */
-	public Panel(ViewPanel view, ViewPanel viewUsers, DBLocal db, Application app) {
+	public UserInterfacePanel(ViewPanel view, ViewPanel viewUsers, DBLocal db, Application app) {
 		this.app = app;
 		this.db = db;
 
@@ -77,7 +79,7 @@ public class Panel extends JPanel {
 		tmodelUsers.addObserver(this.viewUsers);
 		tmodelUsers.initJTextArea();
 		tmodelUsers.setVisible(false);
-		
+
 		this.connect();
 
 	}
@@ -139,8 +141,8 @@ public class Panel extends JPanel {
 			// rzo
 			app.getSocket().end();
 			app.setLoggedAccount(null);
-			
-			this.db.vanishDB();
+
+			//this.db.vanishDB();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e1) {
@@ -150,10 +152,10 @@ public class Panel extends JPanel {
 		}
 
 		tmodel.setJ("Sign out successfully !");
-		
-		//init connected userlist
-		this.connectedUserList=new ArrayList<String>();
-		
+
+		// init connected userlist
+		this.connectedUserList = new ArrayList<String>();
+
 		this.remove(principle);
 
 		this.connect();
@@ -252,9 +254,9 @@ public class Panel extends JPanel {
 
 	public void conversation() {
 		if (app.getLoggedAccount() != null) {
-			
-			tmodel.setJ("Conversation history : ");
-			tmodelUsers.setJ("Users Online : ");
+
+			tmodel.setJ("Conversation : \n");
+			tmodelUsers.setJ("Users Online : \n");
 			this.remove(principle);
 
 			/*
@@ -331,9 +333,12 @@ public class Panel extends JPanel {
 
 	}
 
-	public void updateMessage(Message message) {
-
-		tmodel.setJ(tmodel.getJ().getText() + "\n" + message.getMessage() + "\n" + message.getTimestamp());
+	public void updateMessage(Message message,String sender,String receiver) {
+		tmodel.setJ(tmodel.getJ().getText() 
+				+	"From : "+sender+"\n"
+				+	"To : "+receiver+"\n"
+				+	"Time : "+message.getTimestamp() + "\n"
+				+	"-> "+ message.getMessage()  + "\n");
 
 	}
 
@@ -341,9 +346,49 @@ public class Panel extends JPanel {
 		this.signOut();
 		System.exit(0);
 	}
-	
+
 	public void conversationHistory() {
-		
+		if (app.getLoggedAccount() != null) {
+
+			tmodel.setJ("Conversation history : \n");
+			tmodelUsers.setVisible(false);
+			this.remove(principle);
+
+			/*
+			 * JPanel principale qui rassemble tous les JPanel
+			 */
+			principle = new JPanel(new BorderLayout());
+
+			/*
+			 * partie pour login
+			 */
+			JPanel labelUsers = new JPanel(new GridLayout(3,1, 1, 1));
+			labelUsers.add(new JLabel("Message history -> choose user"));
+			onlineUsers = new JComboBox<String>();
+
+			Collections.sort(connectedUserList, String.CASE_INSENSITIVE_ORDER);
+
+			for (int i = 0; i < this.connectedUserList.size(); i++) {
+				onlineUsers.addItem(connectedUserList.get(i));
+			}
+			labelUsers.add(onlineUsers);
+
+			JButton p = new JButton("Search");
+			p.addActionListener(new conversationHistoryHandler());
+
+			labelUsers.add(p);
+
+			principle.add(labelUsers, BorderLayout.CENTER);
+
+			principle.setSize(250, 200);
+
+			this.add(principle);
+
+			this.revalidate();
+		} else {
+			tmodel.setJ("Error : you should connect to your account for get conversation history !!!");
+			connect();
+		}
 	}
 
 //==================================================================================
@@ -360,9 +405,9 @@ public class Panel extends JPanel {
 			if (acc == null) {
 				tmodel.setJ("Error of connection : account not found !!!");
 			} else {
-				//init connected userlist
-				connectedUserList=new ArrayList<String>();
-				
+				// init connected userlist
+				connectedUserList = new ArrayList<String>();
+
 				acc.setAddress(new Address(acc.getNickname(), acc.getUsername())); // si on utilise getAccount2()
 				// System.out.println(acc.getAddress().getIP()); //test
 				app.setLoggedAccount(acc);
@@ -487,8 +532,79 @@ public class Panel extends JPanel {
 			Message mes = new Message(true, message.getText(), tt);
 			app.getConversation().addMessage(mes);
 			app.getSocket().sendMessage(mes, receiver);
-			tmodel.setJ(tmodel.getJ().getText() + message.getText() + "\n" + tt + "\n");
+			tmodel.setJ(tmodel.getJ().getText() 
+					+	"From : "+app.getLoggedAccount().getNickname()+"\n"
+					+	"To : "+receiver+"\n"
+					+	"Time : "+tt + "\n"
+					+	"-> "+message.getText() + "\n");
 			message.setText("");
+
+		}
+
+	}
+
+	private class conversationHistoryHandler implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			String userSelected = (String) onlineUsers.getSelectedItem();
+			ArrayList<Address> userAddrList = db.getknownUsers(app.getLoggedAccount().getUsername());
+			String corresp = null;
+			
+			if(userSelected!=null) {
+				for (int i=0;i<userAddrList.size();i++) {
+					if (userSelected.equals(userAddrList.get(i).getNickname())) {
+						corresp = userAddrList.get(i).getUsername();
+					}
+				}
+				if (corresp == null) {
+					
+					Address add=null;
+					//ConcurrentHashMap
+					for (Map.Entry<String,Address> entry : app.getSocket().getUserList().entrySet()) { //ConcurrentHashMap
+						 if(entry.getValue().getNickname().equals(userSelected)) {
+							 add = entry.getValue();
+						 }
+						 
+					}
+					
+					
+					db.setKnownUser(add,app.getLoggedAccount().getUsername());
+					app.setConversation(new Conversation(add));
+					
+					corresp=add.getUsername();
+				}
+				else {
+					
+					app.setConversation(db.getConversation(app.getLoggedAccount().getUsername(), corresp));
+					//System.out.println("conversation "+co.getConversation().getDestinataire()+" "+co.getConversation().getConvSize());
+				}
+
+				Message[] m = app.getConversation().getAllMessages();
+				tmodel.setJ(null);
+				for (int i=0;i<app.getConversation().getConvSize();i++) {
+					if (m[i].getIsSender()) {
+						tmodel.setJ(tmodel.getJ().getText() 
+								+	"From : "+app.getLoggedAccount().getNickname()+"\n"
+								+	"To : "+userSelected+"\n"
+								+	"Time : "+m[i].getTimestamp() + "\n"
+								+	"-> "+m[i].getMessage() + "\n");
+					}
+					else {
+						tmodel.setJ(tmodel.getJ().getText() 
+								+	"From : "+userSelected+"\n"
+								+	"To : "+app.getLoggedAccount().getNickname()+"\n"
+								+	"Time : "+m[i].getTimestamp() + "\n"
+								+	"-> "+m[i].getMessage() + "\n");
+					}
+					
+				}
+			}else {
+				tmodel.setJ("Please choose a user before searching the messages !!!");
+			}
+			
+						
 
 		}
 
@@ -496,6 +612,7 @@ public class Panel extends JPanel {
 
 	public void debug() {
 		this.db.vanishDB();
+		System.out.println("UserInterfacePanel : click debug detected");
 	}
 
 }

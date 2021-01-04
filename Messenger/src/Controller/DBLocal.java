@@ -56,14 +56,14 @@ public class DBLocal {
 		return c;
 	}
 	
-	protected synchronized Address getSpecificKnownUser(String UsernameLogged, String userToSearch) {
+	protected synchronized Address getSpecificKnownUser(String usernameLogged, String userToSearch) {
 		Address res = null;
 		try {
 			Statement stmt = DB.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM knownUsers where usernameLogged = '" + UsernameLogged + "' AND username = '" + userToSearch + "' ;");
+			ResultSet rs = stmt.executeQuery("SELECT * FROM knownUsers where usernameLogged = '" + usernameLogged + "' AND username = '" + userToSearch + "' ;");
 			while (rs.next()) {
-				res =  new Address(InetAddress.getByName(rs.getString("address")), rs.getString("pseudo"), rs.getString("username"));
-				System.out.println("DBlocal : usernickname found -> "+rs.getString("pseudo"));
+				res =  new Address(InetAddress.getByName(rs.getString("address")), rs.getString("nickname"), rs.getString("username"));
+				System.out.println("DBlocal : usernickname found -> "+rs.getString("nickname"));
 			}
 			stmt.close();
 			rs.close();
@@ -94,7 +94,7 @@ public class DBLocal {
 			while (rs.next()) {
 				System.out.println("BDLocal : account should be found.");
 				user = rs.getString("username");
-				display = rs.getString("pseudo");
+				display = rs.getString("nickname");
 				pw = rs.getString("password");
 				temp = new Address(null,display,user);
 				account = new Account(user,pw,display,temp);	 
@@ -110,7 +110,7 @@ public class DBLocal {
 	}
 	protected synchronized void setAccount(Account acc){
 
-		String sql = "INSERT INTO account (username,password,pseudo) VALUES (?,?,?)";
+		String sql = "INSERT INTO account (username,password,nickname) VALUES (?,?,?)";
 		try {
 			PreparedStatement pstmt = DB.prepareStatement(sql);
 			pstmt.setString(1, acc.getUsername());
@@ -124,23 +124,24 @@ public class DBLocal {
 		}
 		
 	}
-	protected synchronized ArrayList<Address> getknownUsers(String UsernameLogged){
+	protected synchronized ArrayList<Address> getknownUsers(String usernameLogged){
 		ArrayList<Address> temp = new ArrayList<Address>();
 		Statement stmt;
 		try {
 			stmt = DB.createStatement();
 			ResultSet rs;
-			if (UsernameLogged == null) {
+			if (usernameLogged == null) {
 				rs = stmt.executeQuery("SELECT * FROM knownUsers;");
 			} //on récupère tout
 			else{
-				rs = stmt.executeQuery("SELECT * FROM knownUsers where usernameLogged = '" + UsernameLogged +"';");
+				rs = stmt.executeQuery("SELECT * FROM knownUsers where usernameLogged = '" + usernameLogged +"';");
 			}
 			while(rs.next()) {
 				String username = rs.getString("username");
-				String nickname = rs.getString("pseudo");
-				byte[] address = rs.getBytes("address");
-				temp.add(new Address(InetAddress.getByAddress(address), nickname, username));
+				String nickname = rs.getString("nickname");
+				String address = rs.getString("address");
+				System.out.println(address);
+				temp.add(new Address(InetAddress.getByName(address), nickname, username));
 			}
 			rs.close();
 		    stmt.close();
@@ -235,14 +236,14 @@ public class DBLocal {
 		
 	}
 	
-	protected synchronized void setKnownUser(Address add, String UsernameLogged) {
-		String sql = "INSERT INTO knownUsers (username,pseudo,address,usernameLogged,timestamp) VALUES (?,?,?,?,?)";
+	protected synchronized void setKnownUser(Address add, String usernameLogged) {
+		String sql = "INSERT INTO knownUsers (username,nickname,address,usernameLogged,timestamp) VALUES (?,?,?,?,?)";
 		try {
 			PreparedStatement pstmt = DB.prepareStatement(sql);
 			pstmt.setString(1, add.getUsername());
 			pstmt.setString(2, add.getNickname());
 			pstmt.setString(3, add.getIP().getHostName());
-			pstmt.setString(4,UsernameLogged);
+			pstmt.setString(4,usernameLogged);
 			pstmt.setTimestamp(5,new Timestamp(System.currentTimeMillis()));
 			pstmt.executeUpdate();
 			pstmt.close();
@@ -251,9 +252,9 @@ public class DBLocal {
 			e.printStackTrace();
 		}
 	}
-	//return false when pseudo is not available
+	//return false when nickname is not available
 	protected static boolean checkNickname(String nickname) {
-		String sql = "SELECT * FROM account WHERE pseudo = '" + nickname + "';";
+		String sql = "SELECT * FROM account WHERE nickname = '" + nickname + "';";
 		boolean res = true;
 		try {
 			Statement stmt = DB.createStatement();
@@ -296,7 +297,7 @@ public class DBLocal {
 	}
 	//update nickname of the other user connected 
 	protected synchronized void updateNickName(String newNickname, String username) {
-		String sql = "UPDATE knownUsers SET pseudo = '" + newNickname + "' where username='" + username + "';";
+		String sql = "UPDATE knownUsers SET nickname = '" + newNickname + "' where username='" + username + "';";
 		try {
 			Statement stmt = DB.createStatement();
 			stmt.executeUpdate(sql);
@@ -308,14 +309,14 @@ public class DBLocal {
 	
 	}
 	/*
-	protected synchronized void setKnownUser(Address add, String UsernameLogged, Timestamp ts) {
-		String sql = "INSERT INTO knownUsers (username,pseudo,address,usernameLogged,timestamp) VALUES (?,?,?,?,?)";
+	protected synchronized void setKnownUser(Address add, String usernameLogged, Timestamp ts) {
+		String sql = "INSERT INTO knownUsers (username,nickname,address,usernameLogged,timestamp) VALUES (?,?,?,?,?)";
 		try {
 			PreparedStatement pstmt = DB.prepareStatement(sql);
 			pstmt.setString(1, add.getUsername());
 			pstmt.setString(2, add.getPseudo());
 			pstmt.setBytes(3, add.getIP().getAddress());
-			pstmt.setString(4,UsernameLogged);
+			pstmt.setString(4,usernameLogged);
 			pstmt.setTimestamp(5,ts);
 			pstmt.executeUpdate();
 			pstmt.close();
@@ -327,8 +328,8 @@ public class DBLocal {
 	*/
 	
 	
-	protected synchronized void updateNicknameAccount(String username, String new_pseudo) {
-		String sql = "UPDATE account SET pseudo = '" + new_pseudo + "' where username='" + username + "';";
+	protected synchronized void updateNicknameAccount(String username, String new_nickname) {
+		String sql = "UPDATE account SET nickname = '" + new_nickname + "' where username='" + username + "';";
 		try {
 			Statement stmt = DB.createStatement();
 			stmt.executeUpdate(sql);
@@ -348,8 +349,8 @@ public class DBLocal {
 			rs = stmt.executeQuery("SELECT * FROM account;");
 			while(rs.next()) {
 				String username = rs.getString("username");
-				String pseudo = rs.getString("pseudo");
-				temp.add(new Address(InetAddress.getByAddress(Tools.getPcIP()), pseudo, username));
+				String nickname = rs.getString("nickname");
+				temp.add(new Address(InetAddress.getByAddress(Tools.getPcIP()), nickname, username));
 			}
 			rs.close();
 		    stmt.close();
@@ -383,7 +384,7 @@ public class DBLocal {
 			if ( true) {
 				System.out.println("YA");
 				 un = rs.getString("username");
-				 ps = rs.getString("pseudo");
+				 ps = rs.getString("nickname");
 				 pw = rs.getString("password");
 				 //temp = new Address(InetAddress.getByAddress(this.getPcIP()),ps,un);
 				 //tempA = new Account(un,pw,ps,temp);
@@ -402,7 +403,7 @@ public class DBLocal {
 /*
 	protected synchronized void setAccount(Account acc){
 
-		String sql = "INSERT INTO account (username,password,pseudo) VALUES (?,?,?)";
+		String sql = "INSERT INTO account (username,password,nickname) VALUES (?,?,?)";
 		try {
 			PreparedStatement pstmt = DB.prepareStatement(sql);
 			pstmt.setString(1, acc.getUsername());
@@ -473,11 +474,11 @@ public class DBLocal {
 			}else {
 				System.out.println("\nDBLocal:Table account:\n");
 				System.out.println("--------------------------------");
-				System.out.println("| username | pseudo | password |");
+				System.out.println("| username | nickname | password |");
 				System.out.println("--------------------------------\n");
 				do {
 
-					System.out.println("|" + rs.getString("username") + " | " + rs.getString("pseudo") + " | " + rs.getString("password") + "|");
+					System.out.println("|" + rs.getString("username") + " | " + rs.getString("nickname") + " | " + rs.getString("password") + "|");
 				}while(rs.next());
 				 
 			}
@@ -510,10 +511,10 @@ public class DBLocal {
 			}else {
 				System.out.println("\nDBLocal:Table knownUsers:\n");
 				System.out.println("------------------------------------------------------------");
-				System.out.println("| usernameLogged | username | pseudo | address | timestamp |");
+				System.out.println("| usernameLogged | username | nickname | address | timestamp |");
 				System.out.println("------------------------------------------------------------\n");
 				do {
-					System.out.println("|" + rs.getString("usernameLogged") + " | " + rs.getString("username") + " | " + rs.getString("pseudo") + " | " + rs.getBytes("address")[0] + "." + rs.getBytes("address")[1] + "." + rs.getBytes("address")[2] + "." + rs.getBytes("address")[3] + " | " + rs.getTimestamp("timestamp") + " |");
+					System.out.println("|" + rs.getString("usernameLogged") + " | " + rs.getString("username") + " | " + rs.getString("nickname") + " | " + rs.getBytes("address")[0] + "." + rs.getBytes("address")[1] + "." + rs.getBytes("address")[2] + "." + rs.getBytes("address")[3] + " | " + rs.getTimestamp("timestamp") + " |");
 				}while(rs.next());
 				 
 			}
@@ -545,12 +546,13 @@ public class DBLocal {
 			stmt.executeUpdate(sql);
 			
 			drc.create();
+			
+			System.out.println("DBLocal: vanishDB successfully");
 			//DB.close();
 		} catch (SQLException e) {
 			System.out.println("DBLocal: Error vanishDB creation or execute query");
 			e.printStackTrace();
 		}
-;
 		
 	}
 
