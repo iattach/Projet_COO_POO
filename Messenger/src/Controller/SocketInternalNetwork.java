@@ -38,7 +38,7 @@ import Model.Address;
 
 
 public class SocketInternalNetwork {
-	
+	protected static final String PresentServer = "https://srv-gei-tomcat.insa-toulouse.fr/Messenger/PresenceServer";
 	ConcurrentHashMap<String,Address> connectedUserList = new ConcurrentHashMap<String,Address>(); // Need to be synchronized
 	
 	protected final Account accountLogged;
@@ -49,6 +49,8 @@ public class SocketInternalNetwork {
 	ThreadReceiverTCP TCP_RCV_Thread;
 	protected DBLocal db;
 	protected UserInterface ui;
+	
+	private SocketRequestHttp srh;
 	//protected static Long ts;
 	
 	
@@ -68,6 +70,7 @@ public class SocketInternalNetwork {
 		}
 		this.startReceiverThread();
 		this.sendConnected(accountLogged);
+		this.srh=new SocketRequestHttp();
 	}
 	
 	
@@ -97,6 +100,7 @@ public class SocketInternalNetwork {
 			e.printStackTrace();
 		}
 		
+		srh.notifyConnexionServlet(userOnline);
 		
 	}
 	public void sendNewNickname(String newNickname, String oldNickname) {
@@ -117,7 +121,7 @@ public class SocketInternalNetwork {
 	}
 	public void end() {
 		this.sendDisconnected(accountLogged);
-		//this.notifyDiscoServer(accountLogged);
+		srh.notifyDiscoServer(accountLogged);
 		this.TCP_RCV_Thread.setStop();
 		this.UDP_RCV_Thread.setStop();
 	}

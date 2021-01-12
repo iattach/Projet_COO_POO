@@ -27,7 +27,7 @@ public class DBCentral {
 	private static DBRequestCreate drc = new DBRequestCreate(dbc);
 	final static protected DBLocal dbl = new DBLocal();
 	private String usernameLogged;
-	public static boolean finPullDB = false;
+	public static boolean finPullDBC = false;
 	private static Timestamp ts = new Timestamp(0L);
 
 	public DBCentral(String usernameLogged) {
@@ -79,8 +79,8 @@ public class DBCentral {
 		}
 
 	}
-	/*
-	protected void pullDB() {
+	
+	protected void pullDBC() {
 		// récupère la infos de la db central et les ajoutes dans la db locale vide.
 		// Appelé apres connection de l'user dadns le constructeur.
 		try {
@@ -119,7 +119,7 @@ public class DBCentral {
 
 			rs2.close();
 			pstmt.close();
-			DBCentral.finPullDB = true;
+			DBCentral.finPullDBC = true;
 
 		} catch (SQLException | UnknownHostException e) {
 			System.out.println("DBCentral: Error PullDB");
@@ -128,7 +128,7 @@ public class DBCentral {
 
 	}
 	
-	protected void PushToDBC() {
+	protected void pushToDBC() {
 		// récupère les infos de la db locale qui sont nouvelles depuis PullDBC() et les
 		// ajoutes dans la db central. Appelée à la fermeture de l'app.
 		// DBCentral.dbc = connectionDBCentral();
@@ -185,7 +185,7 @@ public class DBCentral {
 		}
 
 	}
-	*/
+
 	protected void changeNickname(String Username, String newNickname) {
 
 		String sql = "UPDATE account SET nickname = '" + newNickname + "' where username='" + Username + "';";

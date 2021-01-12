@@ -308,13 +308,13 @@ public class DBLocal {
 		}
 	
 	}
-	/*
+	//==================pullDBC =======================
 	protected synchronized void setKnownUser(Address add, String usernameLogged, Timestamp ts) {
 		String sql = "INSERT INTO knownUsers (username,nickname,address,usernameLogged,timestamp) VALUES (?,?,?,?,?)";
 		try {
 			PreparedStatement pstmt = DB.prepareStatement(sql);
 			pstmt.setString(1, add.getUsername());
-			pstmt.setString(2, add.getPseudo());
+			pstmt.setString(2, add.getNickname());
 			pstmt.setBytes(3, add.getIP().getAddress());
 			pstmt.setString(4,usernameLogged);
 			pstmt.setTimestamp(5,ts);
@@ -325,7 +325,7 @@ public class DBLocal {
 			e.printStackTrace();
 		}
 	}
-	*/
+	
 	
 	
 	protected synchronized void updateNicknameAccount(String username, String new_nickname) {
@@ -339,129 +339,9 @@ public class DBLocal {
 			e.printStackTrace();
 		}
 	}
-	/*
-	protected synchronized ArrayList<Address> getAllAccount(){
-		ArrayList<Address> temp = new ArrayList<Address>();
-		Statement stmt;
-		try {
-			stmt = DB.createStatement();
-			ResultSet rs;
-			rs = stmt.executeQuery("SELECT * FROM account;");
-			while(rs.next()) {
-				String username = rs.getString("username");
-				String nickname = rs.getString("nickname");
-				temp.add(new Address(InetAddress.getByAddress(Tools.getPcIP()), nickname, username));
-			}
-			rs.close();
-		    stmt.close();
-		} catch (SQLException e) {
-			System.out.println("DBlocal: Error getAllAccount, SQL ERROR");
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			System.out.println("DBlocal: Error getAllAccount, Unknown Host Error");
-			e.printStackTrace();
-		}
-		return temp;
-		
-	}
-	
 
-	//pour éviter l'erreur UnknownHostException (pour l'instant)//
-	/*protected Account getAccount2(String username, String password) {
-		String sql = "SELECT * FROM account WHERE (username = ?) AND (password = ?);"; //WHERE (username = ?) AND (password = ?) 
-		ResultSet rs = null;
-		String un;
-		String ps;
-		String pw;
-		Address temp;
-		Account tempA = null;
-		try {
-			PreparedStatement pstmt = this.DB.prepareStatement(sql);
-			pstmt.setString(1,username);
-			pstmt.setString(2,password);
-			rs = pstmt.executeQuery();
-			rs.next();
-			if ( true) {
-				System.out.println("YA");
-				 un = rs.getString("username");
-				 ps = rs.getString("nickname");
-				 pw = rs.getString("password");
-				 //temp = new Address(InetAddress.getByAddress(this.getPcIP()),ps,un);
-				 //tempA = new Account(un,pw,ps,temp);
-				 tempA = new Account(un,pw,ps,null);
-			}
-			
-		} catch (SQLException | UnknownHostException e) {
-			System.out.println("DBLocal: Error getAccount creation or execute query");
-			e.printStackTrace();
-		}
-		return tempA;
-		
-	}*/
-	/////
 	
 /*
-	protected synchronized void setAccount(Account acc){
-
-		String sql = "INSERT INTO account (username,password,nickname) VALUES (?,?,?)";
-		try {
-			PreparedStatement pstmt = DB.prepareStatement(sql);
-			pstmt.setString(1, acc.getUsername());
-			pstmt.setString(2, acc.getPassword());
-			pstmt.setString(3, acc.getPseudo());
-			pstmt.executeUpdate();
-			pstmt.close();
-		} catch (SQLException e) {
-			System.out.println("DBLocal: Error setAccount");
-			e.printStackTrace();
-		}
-		
-	}
-	
-	
-	protected ResultSet getRSAllMessageAboveTS(Timestamp ts) {
-		ResultSet rs = null;
-		String sql = "SELECT * FROM conversations WHERE timestamp > ? ;";
-		try {
-			PreparedStatement pstmt = DB.prepareStatement(sql);
-			pstmt.setTimestamp(1, ts);
-			rs = pstmt.executeQuery();
-			
-		} catch (SQLException e) {
-			System.out.println("DBLocal: Error getRSAllMessageAboveTS, create statement or execute");
-			e.printStackTrace();
-		}
-		return rs;
-	}
-	
-	protected ResultSet getRSAllKnownUsersAboveTS(String Userlogged, Timestamp ts) {
-		ResultSet rs = null;
-		String sql = "SELECT * FROM knownUsers WHERE usernameLogged = ? AND timestamp > ?;";
-		try {
-			PreparedStatement pstmt = DB.prepareStatement(sql);
-			pstmt.setString(1, Userlogged);
-			pstmt.setTimestamp(2, ts);
-			rs = pstmt.executeQuery();
-		} catch (SQLException e) {
-			System.out.println("DBLocal: Error getRSAllKnownUsersAboveTS, create statement or execute");
-			e.printStackTrace();
-		}
-		return rs;
-	}
-	
-	protected ResultSet getRSSpecificAccount(String Userlogged) {
-		ResultSet rs = null;
-		String sql = "SELECT * FROM account WHERE username = ?;";
-		try {
-			PreparedStatement pstmt = DB.prepareStatement(sql);
-			pstmt.setString(1, Userlogged);
-			rs = pstmt.executeQuery();
-		} catch (SQLException e) {
-			System.out.println("DBLocal: Error getRSSpecificAccount, create statement or execute");
-			e.printStackTrace();
-		}
-		return rs;
-	}
 	
 	protected void printAllTable() {
 		String sql;
@@ -555,6 +435,53 @@ public class DBLocal {
 		}
 		
 	}
-
+	
+//==============================push to dbc ======================
+	public ResultSet getRSSpecificAccount(String usernameLogged) {
+		
+		ResultSet rs = null;
+		String sql = "SELECT * FROM account WHERE username = ?;";
+		try {
+			PreparedStatement pstmt = DB.prepareStatement(sql);
+			pstmt.setString(1, usernameLogged);
+			rs = pstmt.executeQuery();
+		} catch (SQLException e) {
+			System.out.println("DBLocale: Error getRSSpecificAccount, create statement or execute");
+			e.printStackTrace();
+		}
+		return rs;
+		
+	}
+	public ResultSet getRSAllKnownUsersAboveTS(String usernameLogged, Timestamp ts) {
+		
+		ResultSet rs = null;
+		String sql = "SELECT * FROM knownUsers WHERE usernameLogged = ? AND timestamp > ?;";
+		try {
+			PreparedStatement pstmt = DB.prepareStatement(sql);
+			pstmt.setString(1, usernameLogged);
+			pstmt.setTimestamp(2, ts);
+			rs = pstmt.executeQuery();
+		} catch (SQLException e) {
+			System.out.println("DBLocale: Error getRSAllKnownUsersAboveTS, create statement or execute");
+			e.printStackTrace();
+		}
+		return rs;
+	
+	}
+	public ResultSet getRSAllMessageAboveTS(Timestamp ts) {
+		ResultSet rs = null;
+		String sql = "SELECT * FROM conversations WHERE timestamp > ? ;";
+		try {
+			PreparedStatement pstmt = DB.prepareStatement(sql);
+			pstmt.setTimestamp(1, ts);
+			rs = pstmt.executeQuery();
+			
+		} catch (SQLException e) {
+			System.out.println("DBLocale: Error getRSAllMessageAboveTS, create statement or execute");
+			e.printStackTrace();
+		}
+		return rs;
+	}
+//==============================end push to dbc ======================
 }
 
