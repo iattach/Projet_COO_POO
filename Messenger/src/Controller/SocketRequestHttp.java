@@ -49,34 +49,13 @@ public class SocketRequestHttp {
         try {
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 		} catch (IOException e) {
-			System.out.println("InternalSocket: Error 1 dans notifyConnexionServlet");
+			System.out.println("InternalSocket: Error 1 in notifyConnexionServlet");
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			System.out.println("InternalSocket: Error 2 dans notifyConnexionServlet");
+			System.out.println("InternalSocket: Error 2 in notifyConnexionServlet");
 			e.printStackTrace();
 		}
 	}
-	
-	/*protected void getCoListfromServer() {
-		HttpClient httpClient = HttpClient.newBuilder()
-	            .version(HttpClient.Version.HTTP_2)
-	            .build();
-		HttpRequest request = HttpRequest.newBuilder()
-				.GET()
-				.uri(URI.create(SocketInternalNetwork.PresentServer))
-				.setHeader("User-Agent", "MessengerApp")
-				.build();
-		 try {
-			 httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-			
-		} catch (IOException e) {
-			System.out.println("InternalSocket: Error 1 dans getCoListfromServer");
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			System.out.println("InternalSocket: Error 2 dans getCoListfromServer");
-			e.printStackTrace();
-		}
-	}*/
 	
 	public void notifyDiscoServer(Account loggedAccount) {
 		HttpClient httpClient = HttpClient.newBuilder()
@@ -101,19 +80,13 @@ public class SocketRequestHttp {
         try {
 			httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 		} catch (IOException e) {
-			System.out.println("InternalSocket: Error 1 dans notifyConnexionServlet");
+			System.out.println("InternalSocket: Error 1 in notifyConnexionServlet");
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			System.out.println("InternalSocket: Error 2 dans notifyConnexionServlet");
+			System.out.println("InternalSocket: Error 2 in notifyConnexionServlet");
 			e.printStackTrace();
 		}
 	}
-
-	/*public void startExecutor() {
-		final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-	    executorService.scheduleWithFixedDelay(new SocketTaskHttp(this.connectedUserList , ts), 0, 5, TimeUnit.SECONDS);
-	}*/
-	
 
 
 }
