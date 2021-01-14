@@ -83,7 +83,6 @@ public class DBLocal {
 		String user;
 		String display;
 		String pw;
-		String addr;
 		Address temp;
 		Account account = null;
 		try {

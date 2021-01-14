@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import Model.TextModel;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","deprecation"})
 public class ViewPanel extends JPanel implements Observer {
 	private TextModel t;
 
@@ -14,6 +14,7 @@ public class ViewPanel extends JPanel implements Observer {
 		this.t = new TextModel();
 	}
 
+	
 	@Override
 	public void update(Observable o, Object arg1) {
 		// TODO Auto-generated method stub

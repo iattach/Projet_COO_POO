@@ -4,6 +4,7 @@ import java.util.Observable;
 
 import javax.swing.JTextArea;
 
+@SuppressWarnings("deprecation")
 public class TextModel extends Observable{
 	private JTextArea j;
 	/**
@@ -12,6 +13,7 @@ public class TextModel extends Observable{
 	public TextModel() {
 
 	}
+	
 	
 	public void initJTextArea() {
 		this.j=new JTextArea();

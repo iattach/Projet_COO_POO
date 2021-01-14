@@ -18,6 +18,7 @@ import Model.Address;
 import Model.Message;
 import View.ViewPanel;
 
+@SuppressWarnings("serial")
 public class UserInterface extends JFrame{
 	
 	UserInterfacePanel userInterfacePanel;

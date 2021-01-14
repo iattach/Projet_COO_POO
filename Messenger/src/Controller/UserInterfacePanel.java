@@ -1,8 +1,7 @@
 package Controller;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
+
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,8 +9,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -54,13 +52,13 @@ public class UserInterfacePanel extends JPanel {
 	private DBLocal db;
 	private Application app;
 	private String users;
-	private String mdp;
 	private String displayName;
 	private ArrayList<String> connectedUserList = new ArrayList<String>();
 
 	/**
 	 * @param vuer construteur qui initialiser tous les bouttons et texts
 	 */
+	@SuppressWarnings("deprecation")
 	public UserInterfacePanel(ViewPanel view, ViewPanel viewUsers, DBLocal db, Application app) {
 		this.app = app;
 		this.db = db;
@@ -116,7 +114,7 @@ public class UserInterfacePanel extends JPanel {
 
 		JButton p1 = new JButton("Sign Up");
 		p1.addActionListener(new ActionListener() {
-			@SuppressWarnings("deprecation")
+
 			public void actionPerformed(ActionEvent e) {
 
 				tmodel.setJ("Inscription");
