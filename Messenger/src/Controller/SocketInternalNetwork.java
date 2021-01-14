@@ -38,7 +38,8 @@ import Model.Address;
 
 
 public class SocketInternalNetwork {
-	protected static final String PresentServer = "https://srv-gei-tomcat.insa-toulouse.fr/Messenger/PresenceServer";
+	//protected static final String PresentServer = "https://srv-gei-tomcat.insa-toulouse.fr/EasyChat/Servlet";
+	protected static final String PresentServer = "http://localhost:8080/EasyChat/Servlet";
 	ConcurrentHashMap<String,Address> connectedUserList = new ConcurrentHashMap<String,Address>(); // Need to be synchronized
 	
 	protected final Account accountLogged;
@@ -70,7 +71,6 @@ public class SocketInternalNetwork {
 		}
 		this.startReceiverThread();
 		this.sendConnected(accountLogged);
-		this.srh=new SocketRequestHttp();
 	}
 	
 	
@@ -99,8 +99,8 @@ public class SocketInternalNetwork {
 			System.out.println("InternalSocket: Error dans sendConnected");
 			e.printStackTrace();
 		}
-		
-		srh.notifyConnexionServlet(userOnline);
+		this.srh=new SocketRequestHttp();
+		this.srh.notifyConnexionServlet(userOnline);
 		
 	}
 	public void sendNewNickname(String newNickname, String oldNickname) {
@@ -121,7 +121,8 @@ public class SocketInternalNetwork {
 	}
 	public void end() {
 		this.sendDisconnected(accountLogged);
-		srh.notifyDiscoServer(accountLogged);
+		this.srh=new SocketRequestHttp();
+		this.srh.notifyDiscoServer(accountLogged);
 		this.TCP_RCV_Thread.setStop();
 		this.UDP_RCV_Thread.setStop();
 	}

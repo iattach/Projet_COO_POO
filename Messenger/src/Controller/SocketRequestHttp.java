@@ -21,8 +21,6 @@ import Model.Address;
 import Model.InstanceTool;
 
 public class SocketRequestHttp {
-	protected static final String PresenceServer = "https://srv-gei-tomcat.insa-toulouse.fr/Messenger/PresenceServer";
-
 	
 	public SocketRequestHttp() {};
 
