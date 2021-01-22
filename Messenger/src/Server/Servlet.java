@@ -36,7 +36,7 @@ public class Servlet extends HttpServlet{
 		
 		Enumeration<String> parameterNames = req.getParameterNames();
 		String type ="";
-		Timestamp ts = null;
+		Timestamp ts = new Timestamp(0);
 		while (parameterNames.hasMoreElements()) {
 			 String key = parameterNames.nextElement();
 			    if(key.equals("type")) {
@@ -135,7 +135,20 @@ public class Servlet extends HttpServlet{
 				}
 			}
 		}else {
-			coUsers.add(new Address(InetAddress.getByAddress(addr), pseudo, username));
+			Boolean fin = false;
+			Iterator<Disco> iter = discoUsers.iterator();
+			Disco tempor;
+;			while (!fin && iter.hasNext()) {
+				tempor = iter.next();
+				if(tempor.getUsername().equals(username)) {
+					coUsers.add(new Address(InetAddress.getByAddress(addr), pseudo, username));
+					discoUsers.remove(tempor);
+					fin = true;
+				}
+			}
+			if(!iter.hasNext()) {
+				coUsers.add(new Address(InetAddress.getByAddress(addr), pseudo, username));
+			}
 		}
 		
 	}

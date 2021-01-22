@@ -23,7 +23,7 @@ public class Servlet extends HttpServlet{
 	static ArrayList<Address> coUsers = new ArrayList<Address>();
 	static ArrayList<Disco> discoUsers = new ArrayList<Disco>();
 	static boolean init = false;
-	
+	Timestamp ts;
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		/*if(MessengerServlet.init == false) {
@@ -36,7 +36,7 @@ public class Servlet extends HttpServlet{
 		
 		Enumeration<String> parameterNames = req.getParameterNames();
 		String type ="";
-		Timestamp ts = null;
+		ts = new Timestamp(System.currentTimeMillis());
 		while (parameterNames.hasMoreElements()) {
 			 String key = parameterNames.nextElement();
 			    if(key.equals("type")) {
@@ -59,6 +59,8 @@ public class Servlet extends HttpServlet{
 			while (it.hasNext()) {
 				temp = it.next();
 				Timestamp tempTS = temp.getTime();
+				System.out.println(temp.getNickname());
+				System.out.println(temp.getTime());
 				if(tempTS.after(ts)) {
 					out.println(temp.getNickname());
 					out.println(temp.getUsername());

@@ -51,6 +51,7 @@ public class UserInterfacePanel extends JPanel {
 	// Basic settings
 	private DBLocal db;
 	private Application app;
+
 	private String users;
 	private String displayName;
 	private ArrayList<String> connectedUserList = new ArrayList<String>();
@@ -127,14 +128,17 @@ public class UserInterfacePanel extends JPanel {
 		principle.add(op, BorderLayout.CENTER);
 
 		this.add(principle);
+		if(tmodelUsers != null) {
+			setVisibleUsers(false);
+		}
 		this.revalidate();
 	}
 
 	public void signOut() {
 		if (app.getLoggedAccount() != null) {
 			// db
-			DBCentral dbCentral = new DBCentral(app.getLoggedAccount().getUsername());
-			dbCentral.pushToDBC();
+			//DBCentral dbCentral = new DBCentral(app.getLoggedAccount().getUsername());=============mark=============
+			//dbCentral.pushToDBC();=============mark=============
 			//dbCentral.close();
 			// rzo
 			app.getSocket().end();
@@ -158,7 +162,7 @@ public class UserInterfacePanel extends JPanel {
 
 		this.connect();
 
-		this.add(principle);
+		//this.add(principle);
 		this.revalidate();
 	}
 
@@ -168,7 +172,7 @@ public class UserInterfacePanel extends JPanel {
 
 		this.connect();
 
-		this.add(principle);
+		//this.add(principle);
 		this.revalidate();
 	}
 
@@ -201,7 +205,9 @@ public class UserInterfacePanel extends JPanel {
 			principle.add(op, BorderLayout.CENTER);
 
 			this.add(principle);
-
+			if(tmodelUsers != null) {
+				setVisibleUsers(false);
+			}
 			this.revalidate();
 		} else {
 			tmodel.setJ("Error : you should connect to your account for changing your nickname !!!");
@@ -213,8 +219,8 @@ public class UserInterfacePanel extends JPanel {
 	public void createAccount() {
 		if(app.getLoggedAccount()!=null) {
 			//db
-			DBCentral dbc = new DBCentral(app.getLoggedAccount().getUsername());
-			dbc.pushToDBC();
+			//DBCentral dbc = new DBCentral(app.getLoggedAccount().getUsername());=============mark=============
+			//dbc.pushToDBC();=============mark=============
 			//rzo
 			app.getSocket().end();
 			app.setLoggedAccount(null);
@@ -260,7 +266,10 @@ public class UserInterfacePanel extends JPanel {
 		principle.add(op, BorderLayout.CENTER);
 
 		this.add(principle);
-
+		if(tmodelUsers != null) {
+			setVisibleUsers(false);
+		}
+		
 		this.revalidate();
 	}
 
@@ -288,6 +297,7 @@ public class UserInterfacePanel extends JPanel {
 			for (int i = 0; i < this.connectedUserList.size(); i++) {
 				onlineUsers.addItem(connectedUserList.get(i));
 			}
+			this.updateUsers(connectedUserList);
 			labelUsers.add(onlineUsers);
 			principle.add(labelUsers, BorderLayout.NORTH);
 			// JPanel op=new JPanel(new BorderLayout());
@@ -333,15 +343,16 @@ public class UserInterfacePanel extends JPanel {
 	public void updateUsers(ArrayList<String> connectedUserList) {
 		this.connectedUserList = connectedUserList;
 		Collections.sort(connectedUserList, String.CASE_INSENSITIVE_ORDER);
-		onlineUsers.removeAllItems();
+		if(onlineUsers!=null) {
+			onlineUsers.removeAllItems();
+			String s = "Users Online : \n";
+			for (int i = 0; i < this.connectedUserList.size(); i++) {
+				s += connectedUserList.get(i) + "\n";
+				onlineUsers.addItem(connectedUserList.get(i));
+			}
 
-		String s = "Users Online : \n";
-		for (int i = 0; i < this.connectedUserList.size(); i++) {
-			s += connectedUserList.get(i) + "\n";
-			onlineUsers.addItem(connectedUserList.get(i));
+			tmodelUsers.setJ(s);
 		}
-
-		tmodelUsers.setJ(s);
 
 	}
 
@@ -358,9 +369,9 @@ public class UserInterfacePanel extends JPanel {
 		this.signOut();
 		if (app.getLoggedAccount() != null) {
 			
-			DBCentral dbCentral = new DBCentral(app.getLoggedAccount().getUsername());
-			dbCentral.pushToDBC();
-			dbCentral.close();
+			//DBCentral dbCentral = new DBCentral(app.getLoggedAccount().getUsername());=============mark=============
+			//dbCentral.pushToDBC();=============mark=============
+			//dbCentral.close();=============mark=============
 
 		}
 		System.exit(0);
@@ -430,17 +441,17 @@ public class UserInterfacePanel extends JPanel {
 				acc.setAddress(new Address(acc.getNickname(), acc.getUsername())); // si on utilise getAccount2()
 				// System.out.println(acc.getAddress().getIP()); //test
 				app.setLoggedAccount(acc);
-				DBCentral dbc = new DBCentral(acc.getUsername());
-				dbc.pullDBC();
+				//DBCentral dbc = new DBCentral(acc.getUsername());=============mark=============
+				//dbc.pullDBC();=============mark=============
 				
-				 while (!DBCentral.finPullDBC) { 
+				/* while (!DBCentral.finPullDBC) { 
 					 try { 
 						 Thread.sleep(100); 
 					 } catch(InterruptedException e1) {
 						 e1.printStackTrace(); 
 					 } 
-				}
-				 
+				}=============mark=============
+				 */
 				// rzo
 				app.setSocket(new SocketInternalNetwork(acc, app.getUI()));
 
@@ -465,8 +476,8 @@ public class UserInterfacePanel extends JPanel {
 				nickname = user;
 			}
 
-			boolean unique_user = DBCentral.checkUsername(user);// dbcentrale
-			boolean unique_nick = DBCentral.checkNickname(nickname);// dbcentrale
+			boolean unique_user = true;//DBCentral.checkUsername(user);// dbcentrale=============mark=============
+			boolean unique_nick = true;//DBCentral.checkNickname(nickname);// dbcentrale=============mark=============
 
 			if (unique_user && unique_nick) {
 				Address add = null;
@@ -482,7 +493,7 @@ public class UserInterfacePanel extends JPanel {
 				}
 
 				db.setAccount(acc);
-				DBCentral.addAccount(acc);
+				//DBCentral.addAccount(acc);=============mark=============
 				db.setKnownUser(add, acc.getUsername()); // il se connait lui-même
 				tmodel.setJ("Your account " + acc.getNickname() + " has been created successfully !!!");
 				connect();
@@ -510,7 +521,7 @@ public class UserInterfacePanel extends JPanel {
 
 			String nickNameString = nickName1.getText();
 
-			boolean unique = DBCentral.checkNickname(nickNameString);// dbcentrale
+			boolean unique = true;//DBCentral.checkNickname(nickNameString);// dbcentrale=============mark=============
 			if (unique) {
 				String old_name = app.getLoggedAccount().getNickname();
 				// network
@@ -523,15 +534,15 @@ public class UserInterfacePanel extends JPanel {
 				// db
 				// change nickname because he is himself
 				db.updateNickName(nickNameString, app.getLoggedAccount().getUsername()); //
-				DBCentral dbc = new DBCentral(app.getLoggedAccount().getUsername());
-				dbc.changeNickname(app.getLoggedAccount().getUsername(), nickNameString);
+				//DBCentral dbc = new DBCentral(app.getLoggedAccount().getUsername());=============mark=============
+				//dbc.changeNickname(app.getLoggedAccount().getUsername(), nickNameString);=============mark=============
 				db.updateNicknameAccount(app.getLoggedAccount().getUsername(), nickNameString);
 
 				tmodel.setJ("Your account's nickname has been changed successfully .");
 				connectedUserList.remove(old_name);
-				connectedUserList.add(nickNameString);
+				//connectedUserList.add(nickNameString);
 				conversation();
-				updateUsers(connectedUserList);
+				//updateUsers(connectedUserList);
 			} else {
 				tmodel.setJ("Error : the nickname already exists !!!");
 				changeDisplayName();
@@ -546,20 +557,21 @@ public class UserInterfacePanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-
+			
 			String receiver = (String) onlineUsers.getSelectedItem();
-			System.out.println("Panel : conversationHandler " + receiver);
-			Timestamp tt = new Timestamp(System.currentTimeMillis());
-			Message mes = new Message(true, message.getText(), tt);
-			app.getConversation().addMessage(mes);
-			app.getSocket().sendMessage(mes, receiver);
-			tmodel.setJ(tmodel.getJ().getText() 
-					+	"From : "+app.getLoggedAccount().getNickname()+"\n"
-					+	"To : "+receiver+"\n"
-					+	"Time : "+tt + "\n"
-					+	"-> "+message.getText() + "\n");
-			message.setText("");
-
+			if(receiver!=null&&message.getText()!=null) {
+				System.out.println("Panel : conversationHandler " + receiver);
+				Timestamp tt = new Timestamp(System.currentTimeMillis());
+				Message mes = new Message(true, message.getText(), tt);
+				app.getConversation().addMessage(mes);
+				app.getSocket().sendMessage(mes, receiver);
+				tmodel.setJ(tmodel.getJ().getText() 
+						+	"From : "+app.getLoggedAccount().getNickname()+"\n"
+						+	"To : "+receiver+"\n"
+						+	"Time : "+tt + "\n"
+						+	"-> "+message.getText() + "\n");
+				message.setText("");
+			}
 		}
 
 	}
@@ -634,6 +646,9 @@ public class UserInterfacePanel extends JPanel {
 	public void debug() {
 		this.db.vanishDB();
 		System.out.println("UserInterfacePanel : click debug detected");
+	}
+	public Application getApp() {
+		return app;
 	}
 
 }

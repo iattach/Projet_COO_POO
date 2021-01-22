@@ -10,5 +10,8 @@ public class Disco {
 		this.ts = TS;
 
 	}
+	public String getUsername() {
+		return Username;
+	}
 	
 }

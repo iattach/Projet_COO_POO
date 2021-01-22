@@ -39,7 +39,7 @@ public class ThreadReceiverUDP extends Thread {
 			/*Integer.parseInt(onlineUser.getUsername())*/
 			this.receiver = new DatagramSocket(InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
 		} catch (SocketException e) {
-			System.out.println("ThreadReceiverUDP: Error creatino socket");
+			System.out.println("ThreadReceiverUDP: Error creation socket");
 			e.printStackTrace();
 		}
 		this.start();
@@ -51,9 +51,9 @@ public class ThreadReceiverUDP extends Thread {
 	}
 	
 	//UDP returns a message which contains the current user logged , like  ACK for SYN, so the other uses know that this user is already connected
-	private void sendSYNACKConnected(InetAddress addr, String nickName, String userName) {
+	private void sendSYNACKConnected(InetAddress addr, String nickname, String username) {
 		
-		String message = InstanceTool.Ident_Code.Con_SYN_Ack+ "\n" + nickName + "\n" + userName + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
+		String message = InstanceTool.Ident_Code.Con_SYN_Ack+ "\n" + nickname + "\n" + username + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
 		//System.out.println("ThreadReceiverUDP: sendACKConnected " + message + "\n\n" + addr.getAddress()[0] + + addr.getAddress()[1] + + addr.getAddress()[2] + addr.getAddress()[3]);
 		try {
 			DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),addr, InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
@@ -64,9 +64,9 @@ public class ThreadReceiverUDP extends Thread {
 		}
 	}
 	
-	private void sendACKConnected(InetAddress addr, String nickName, String userName) {
+	private void sendACKConnected(InetAddress addr, String nickname, String username) {
 		
-		String message = InstanceTool.Ident_Code.Con_Ack+"\n"+addr.getHostAddress()+ "\n"  +addr.getHostName()+ "\n" + nickName + "\n" + userName + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
+		String message = InstanceTool.Ident_Code.Con_Ack+"\n"+addr.getHostAddress()+ "\n"  +addr.getHostName()+ "\n" + nickname + "\n" + username + "\n" + (new Timestamp(System.currentTimeMillis())).toString();
 		//System.out.println("ThreadReceiverUDP: sendACKConnected " + message + "\n\n" + addr.getAddress()[0] + + addr.getAddress()[1] + + addr.getAddress()[2] + addr.getAddress()[3]);
 		try {
 			DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),addr, InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
@@ -99,16 +99,16 @@ public class ThreadReceiverUDP extends Thread {
 					String message = new String (inPacket.getData(), 0, inPacket.getLength());
 					BufferedReader reader = new BufferedReader(new StringReader(message));
 					String line = reader.readLine();
-					System.out.println("ThreadReceiverUDP: line -> "+line);
+					//System.out.println("ThreadReceiverUDP: line -> "+line);
 					if (line.contains(InstanceTool.Ident_Code.Connected.toString())) {
 						System.out.println("ThreadReceiverUDP: Socket received -> Type : Connected");
 						System.out.println("ThreadReceiverUDP: Connected received: " + message +" from " + clientAddress.getHostAddress());
-						String nickName = reader.readLine();
-						String userName = reader.readLine();
-						if (!userName.equals(onlineUser.getUsername())&&!this.listConnectedUsers.containsKey(userName)) {
+						String nickname = reader.readLine();
+						String username = reader.readLine();
+						if (!username.equals(onlineUser.getUsername())&&!this.listConnectedUsers.containsKey(username)) {
 							synchronized(this.listConnectedUsers) {
 								
-								this.listConnectedUsers.put(userName,new Address(clientAddress,nickName,userName ));
+								this.listConnectedUsers.put(username,new Address(clientAddress,nickname,username ));
 								
 								this.sendSYNACKConnected(clientAddress,onlineUser.getNickname(), onlineUser.getUsername());
 							}
@@ -118,12 +118,13 @@ public class ThreadReceiverUDP extends Thread {
 						System.out.println("ThreadReceiverUDP: Exit received: " + message);
 						synchronized(this.listConnectedUsers) {
 							
-							String userName = reader.readLine();
-							this.listConnectedUsers.remove(userName);
+							String username = reader.readLine();
+							this.listConnectedUsers.remove(username);
+							
 							
 						}
 						
-						ui.updateUsers(this.listConnectedUsers);
+						
 						
 					}else if (line.contains(InstanceTool.Ident_Code.New_Name.toString())){
 						System.out.println("ThreadReceiverUDP: New_Name received: " + message);
@@ -136,40 +137,50 @@ public class ThreadReceiverUDP extends Thread {
 								this.listConnectedUsers.put(username,new Address(InetAddress.getByAddress(clientAddress.getAddress()),newNickname, username));
 								
 								this.db.updateNickName(newNickname, username);
+								
+								
 							}
-							
 						}
 						ui.updateUsers(this.listConnectedUsers);
 						
 					}else if(line.contains(InstanceTool.Ident_Code.Con_SYN_Ack.toString())) {
 						System.out.println("ThreadReceiverUDP: Connected_SYN_ACK received: " + message);
 						synchronized(this.listConnectedUsers) {
-							String nickName = reader.readLine();
-							String userName = reader.readLine();
-							this.listConnectedUsers.put(userName,new Address(clientAddress,nickName,userName ));
+							String nickname = reader.readLine();
+							String username = reader.readLine();
+							if (!username.equals(onlineUser.getUsername())&&!this.listConnectedUsers.containsKey(username)) {
 							
-							this.sendACKConnected(clientAddress,nickName,userName);
-							
+								this.listConnectedUsers.put(username,new Address(clientAddress,nickname,username ));
+								
+								this.sendACKConnected(clientAddress,nickname,username);
+								
+								
+							}
 						}
-						ui.updateUsers(this.listConnectedUsers);
+						
 					}else if(line.contains(InstanceTool.Ident_Code.Con_Ack.toString())) {
 						System.out.println("ThreadReceiverUDP: Connected_ACK received: " + message);
 						synchronized(this.listConnectedUsers) {
 							String addr = reader.readLine();
-							String nickName = reader.readLine();
-							String userName = reader.readLine();
-							this.listConnectedUsers.replace(userName,new Address(InetAddress.getByName(addr),nickName,userName ));
-							
+							String nickname = reader.readLine();
+							String username = reader.readLine();
+				
+							if (!username.equals(onlineUser.getUsername())&&!this.listConnectedUsers.containsKey(username)) {
+								this.listConnectedUsers.replace(username,new Address(InetAddress.getByName(addr),nickname,username ));
+								
+								
+							}
 						}
-						ui.updateUsers(this.listConnectedUsers);
+						
 					}
 					
 					else {
 						System.out.println("ThreadReceiverUDP: Unknown message received: " + message);
 					}
+					
 				}
 				
-				
+				ui.updateUsers(this.listConnectedUsers);	
 				
 			}catch(SocketTimeoutException e) {
 				//System.out.println("ThreadReceiverUDP: No socket received ...");
@@ -180,6 +191,7 @@ public class ThreadReceiverUDP extends Thread {
 			}catch (Exception e) {
 				
 			}
+			
 		}
 		this.receiver.close();
 		System.out.println("ThreadReceiverUDP: Closing . . .");

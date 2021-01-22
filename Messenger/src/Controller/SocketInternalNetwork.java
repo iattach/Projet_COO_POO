@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import Model.Message;
 import Model.InstanceTool;
@@ -25,7 +28,7 @@ import Model.Address;
 
 public class SocketInternalNetwork {
 	//protected static final String PresentServer = "https://srv-gei-tomcat.insa-toulouse.fr/EasyChat/Servlet";
-	protected static final String PresentServer = "http://localhost:8080/EasyChat/Servlet";
+	protected static final String PresentServer = "http://192.168.56.1:8080/EasyChat/Servlet";
 	ConcurrentHashMap<String,Address> connectedUserList = new ConcurrentHashMap<String,Address>(); // Need to be synchronized
 	
 	protected final Account accountLogged;
@@ -37,12 +40,16 @@ public class SocketInternalNetwork {
 	protected DBLocal db;
 	protected UserInterface ui;
 	
+	ScheduledExecutorService executorService;
+	
 	private SocketRequestHttp srh;
-	//protected static Long ts;
+	
+	protected static Long ts;
 	
 	
 	
 	public SocketInternalNetwork(Account accountLogged, UserInterface ui){
+		ts = 0L;//socket http
 		this.accountLogged = accountLogged;
 		this.connectedUserList = new ConcurrentHashMap<String,Address>();
 		this.db = new DBLocal();
@@ -110,7 +117,7 @@ public class SocketInternalNetwork {
 		this.srh=new SocketRequestHttp();
 		this.srh.notifyDiscoServer(accountLogged);
 		this.TCP_RCV_Thread.setStop();
-		this.UDP_RCV_Thread.setStop();
+		executorService.shutdownNow();
 	}
 	public void sendMessage(Message msg, String receiver) {
 		Address res = null;
@@ -119,13 +126,13 @@ public class SocketInternalNetwork {
 			for (Map.Entry<String,Address> entry : connectedUserList.entrySet()) {
 				Address tmp = entry.getValue();
 				System.out.println("SocketInternalNetwork : Entry username->"+tmp.getUsername()+" nickname->"+tmp.getNickname()+" ip->"+tmp.getIp().getHostAddress());
-				 if(tmp.getUsername().equals(receiver)) {
+				 if(tmp.getNickname().equals(receiver)) {
 					res= tmp;
 					System.out.println("SocketInternalNetwork : (Res) Entry username->"+res.getUsername()+" nickname->"+res.getNickname()+" ip->"+res.getIp().getHostAddress());
 				 }
 			}
 		}
-		String message = InstanceTool.Ident_Code.Message.toString() + "\n" +  accountLogged.getUsername() + "\n" + receiver + "\n" + msg.getTimestamp().toString() + "\n" + msg.getMessage();
+		String message = InstanceTool.Ident_Code.Message.toString() + "\n" +  accountLogged.getUsername() + "\n" + res.getUsername() + "\n" + msg.getTimestamp().toString() + "\n" + msg.getMessage();
 		//System.out.println("InternalSocket: Message envoyé : \n" + message + "\n InternalSocket: Fin du message");
 		InetAddress addrRcv = res.getIP();
 		try {
@@ -134,7 +141,7 @@ public class SocketInternalNetwork {
 			out.println(message);
 			TCP_SEND_Socket.close();
 		} catch (IOException e) {
-			System.out.println("InternalSocket: Error Send message création Socket");
+			System.out.println("InternalSocket: Error Send message creation Socket");
 			e.printStackTrace();
 		}
 		
@@ -174,6 +181,9 @@ public class SocketInternalNetwork {
 		//this.TCP_RCV_Thread = new ThreadReceiverTCP(this.db, accountLogged.getUsername(),this.connectedUserList, this.ui);
 		this.UDP_RCV_Thread = new ThreadReceiverUDP(this.connectedUserList, this.db, this.UDP_SEND_Socket, accountLogged, this.ui);
 		this.TCP_RCV_Thread = new ThreadReceiverTCP(this.db, accountLogged.getUsername(),this.connectedUserList, this.ui);
+		executorService = Executors.newSingleThreadScheduledExecutor();
+	    executorService.scheduleWithFixedDelay(new SocketTaskHttp(this.connectedUserList , ts, accountLogged.getUsername(),ui), 0, 5, TimeUnit.SECONDS);
+	    
 	}
 	
 
@@ -185,13 +195,22 @@ public class SocketInternalNetwork {
 	public void sendDisconnected(Account loggedAccount) {
 		String message = InstanceTool.Ident_Code.Exit.toString() + "\n" + loggedAccount.getUsername() + "\n" + loggedAccount.getNickname()+ "\n" + (new Timestamp(System.currentTimeMillis())).toString();
 		try {
-			DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),listAllBroadcastAddresses().get(0), InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
-			this.UDP_SEND_Socket.send(outPacket);
+			synchronized(this.UDP_SEND_Socket) {
+				this.UDP_SEND_Socket.setBroadcast(true);
+				List<InetAddress> listBroadAddress=this.listAllBroadcastAddresses();			
+				for(int i=0; i<listBroadAddress.size();i++) {
+					DatagramPacket outPacket = new DatagramPacket(message.getBytes(),message.length(),listAllBroadcastAddresses().get(i), InstanceTool.PortNumber.UDP_RCV_PORT.getValue());
+					this.UDP_SEND_Socket.send(outPacket);
+				}
+			}
 			this.UDP_SEND_Socket.close();
+			this.UDP_RCV_Thread.setStop();
 		} catch ( IOException e) {
 			System.out.println("InternalSocket: Error in sendDisconnected");
-			e.printStackTrace();
+			//e.printStackTrace();
+			
 		}
+		
 		
 
 	}

@@ -15,6 +15,7 @@ public class Address {
 		this.ip = ip;
 		this.nickname = nickname;
 		this.username = username;
+		setTime(new Timestamp(System.currentTimeMillis()));
 	}
 	
 	public Address(String nickname, String userTest) {
@@ -31,7 +32,7 @@ public class Address {
 
 
 	public Timestamp getTime() {
-		return time;
+		return this.time;
 	}
 
 	public void setTime(Timestamp time) {

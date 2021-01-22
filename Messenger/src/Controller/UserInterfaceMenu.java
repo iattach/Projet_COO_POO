@@ -104,11 +104,11 @@ public class UserInterfaceMenu extends JMenuBar{
 		menuConv.add(menuConv1);
 		menuConv.add(menuConv2);
 		
-		menuAdmin.add(menuAdmin1);
+		//menuAdmin.add(menuAdmin1);
 		
 		this.add(menuSys);
 		this.add(menuConv);
-		this.add(menuAdmin);
+		//this.add(menuAdmin);
 	}
 	
 }

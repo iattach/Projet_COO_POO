@@ -1,4 +1,4 @@
-package Controller;
+/*package Controller;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -14,11 +14,11 @@ import Model.Message;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
+*/
 /*ACCES VIA TERMINAL : mysql -h srv-bdens.insa-toulouse.fr -D tp_servlet_010 -u tp_servlet_010 -p
  *then nickname : aep5Ohba
  */
-
+/*
 public class DBCentral {
 	private static String login = "tp_servlet_010";
 	private static String password = "aep5Ohba";
@@ -269,4 +269,4 @@ public class DBCentral {
 		}
 	}
 
-}
+}*/
