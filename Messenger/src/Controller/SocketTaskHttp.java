@@ -35,7 +35,7 @@ public class SocketTaskHttp extends TimerTask{
 		HttpRequest request = HttpRequest.newBuilder()
 				.GET()
 				.uri(URI.create(SocketInternalNetwork.PresentServer +"?type="+InstanceTool.Ident_Code.CoList+"&ts="+ this.ts))
-				.setHeader("User-Agent", "MessengerApp")
+				.setHeader("User-Agent", "EasyChat")
 				.build();
 		 HttpResponse<String> response;
 		try {
@@ -103,14 +103,14 @@ public class SocketTaskHttp extends TimerTask{
 				if(username!=usernamehttp) {
 					this.userCo.put(usernamehttp, new Address(InetAddress.getByName(addr.substring(1)), nickname, usernamehttp));
 				}
-				System.out.println("Ajout de " + username + " Taille de la liste " + this.userCo.size());
+				System.out.println("Add of " + username + ", size of userlist " + this.userCo.size());
 				ui.updateUsers(userCo);
 				val = out.readLine();
 			}
 			val = out.readLine();
 			while(val != null) {
 				this.userCo.remove(val);
-				System.out.println("Rm de " + val + " Taille de la liste " + this.userCo.size());
+				System.out.println("Remove of " + username + ", size of userlist " + this.userCo.size());
 				val = out.readLine();
 				ui.updateUsers(userCo);
 			}

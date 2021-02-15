@@ -25,7 +25,7 @@ public class DBLocal {
 	
 	private static final String PATH =  "./";
 	final static protected Connection DB = connectionDB("DBMessenger.db");
-	DBRequestCreate drc = new DBRequestCreate(DB);
+	private DBRequestCreate drc = new DBRequestCreate(DB);
 	
 	
 	public DBLocal() {
@@ -339,75 +339,6 @@ public class DBLocal {
 		}
 	}
 
-	
-/*
-	
-	protected void printAllTable() {
-		String sql;
-		try {
-			sql = "SELECT * FROM account;";
-			Statement stmt = DB.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
-			if (rs.next() == false) {
-				System.out.println("\nDBLocal: account is EMPTY");
-			}else {
-				System.out.println("\nDBLocal:Table account:\n");
-				System.out.println("--------------------------------");
-				System.out.println("| username | nickname | password |");
-				System.out.println("--------------------------------\n");
-				do {
-
-					System.out.println("|" + rs.getString("username") + " | " + rs.getString("nickname") + " | " + rs.getString("password") + "|");
-				}while(rs.next());
-				 
-			}
-			rs.close();
-		    stmt.close();
-		    
-		    sql = "SELECT * FROM conversations";
-		    stmt = DB.createStatement();
-		    rs = stmt.executeQuery(sql);
-		    if (rs.next() == false) {
-				System.out.println("\nDBLocal: conversations is EMPTY");
-			}else {
-				System.out.println("\nDBLocal:Table conversations:\n");
-				System.out.println("-------------------------------------------");
-				System.out.println("| sender | receiver | timestamp | message |");
-				System.out.println("-------------------------------------------\n");
-				do {
-					System.out.println("|" + rs.getString("sender") + " | " + rs.getString("receiver") + " | "  + rs.getTimestamp("timestamp") + " | " + rs.getString("message") + " |");
-				}while(rs.next());
-				 
-			}
-			rs.close();
-		    stmt.close();
-		    
-		    sql = "SELECT * FROM knownUsers";
-		    stmt = DB.createStatement();
-		    rs = stmt.executeQuery(sql);
-		    if (rs.next() == false) {
-				System.out.println("\nDBLocal: knownUsers is EMPTY");
-			}else {
-				System.out.println("\nDBLocal:Table knownUsers:\n");
-				System.out.println("------------------------------------------------------------");
-				System.out.println("| usernameLogged | username | nickname | address | timestamp |");
-				System.out.println("------------------------------------------------------------\n");
-				do {
-					System.out.println("|" + rs.getString("usernameLogged") + " | " + rs.getString("username") + " | " + rs.getString("nickname") + " | " + rs.getBytes("address")[0] + "." + rs.getBytes("address")[1] + "." + rs.getBytes("address")[2] + "." + rs.getBytes("address")[3] + " | " + rs.getTimestamp("timestamp") + " |");
-				}while(rs.next());
-				 
-			}
-			rs.close();
-		    stmt.close();
-		    
-			
-		}catch (SQLException e) {
-			System.out.println("DBLocal: Error getAccount creation or execute query");
-			e.printStackTrace();
-		}
-		
-	}
-	*/
 	protected void vanishDB() {
 		String sql;
 		Statement stmt;

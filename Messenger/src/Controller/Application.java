@@ -19,9 +19,6 @@ public class Application{
 
 	
 	
-	
-	
-	
 	/**
 	 * @param s
 	 * @param w
@@ -31,24 +28,7 @@ public class Application{
 		
 		this.conversation = new Conversation(new Address(null,"test","test"));
 		this.db = new DBLocal();
-		//this.db = new DBLocale();
-		/*//test utililisateurs connectes//
-		Address valentin = new Address(null,"Valentin_p","Valentin_u");
-		Address simeon = new Address(null,"simeon_p","simeon_u");
-		ArrayList<Address> utilco = new ArrayList<Address>();
-		utilco.add(valentin);
-		utilco.add(simeon);
-		.0
-		//*/
-		/*
-		this.db = new DBLocale();
 		
-		this.userInterface = new UserInterface(/*this,this.db);
-		this.userInterface.co = this;
-		this.userInterface.db = this.db;
-		DBCentrale.InitPullAccount();
-		*/
-		//this.dbc = new DBCentrale();
 		this.ui=new UserInterface("Chat box", 300,300,db,this);
 		ui.setVisible(true);
 

@@ -32,7 +32,7 @@ public class SocketRequestHttp {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(InstanceTool.buildFormDataFromMap(data))
                 .uri(URI.create(SocketInternalNetwork.PresentServer))
-                .setHeader("User-Agent", "MessengerApp") 
+                .setHeader("User-Agent", "EasyChat") 
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build();
 
@@ -63,7 +63,7 @@ public class SocketRequestHttp {
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(InstanceTool.buildFormDataFromMap(data))
                 .uri(URI.create(SocketInternalNetwork.PresentServer))
-                .setHeader("User-Agent", "MessengerApp") 
+                .setHeader("User-Agent", "EasyChat") 
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build();
 

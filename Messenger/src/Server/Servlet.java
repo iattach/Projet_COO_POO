@@ -22,17 +22,9 @@ public class Servlet extends HttpServlet{
 	private static final long serialVersionUID = 1L;
 	static ArrayList<Address> coUsers = new ArrayList<Address>();
 	static ArrayList<Disco> discoUsers = new ArrayList<Disco>();
-	static boolean init = false;
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		/*if(MessengerServlet.init == false) {
-			MessengerServlet.init=true;
-			coUsers.add(new Address("Alice Pseudo", "Alice Username"));
-			coUsers.add(new Address("Bob Pseudo", "Bob Username"));
-			coUsers.add(new Address("Eve Pseudo", "Eve Username"));
-		}*/
-		
 		
 		Enumeration<String> parameterNames = req.getParameterNames();
 		String type ="";
@@ -101,7 +93,7 @@ public class Servlet extends HttpServlet{
 		    String key = parameterNames.nextElement();
 		    if(key.equals("username")) {
 		    	username = req.getParameter(key);
-		    }else if(key.equals("pseudo")) {
+		    }else if(key.equals("nickname")) {
 			    pseudo = req.getParameter(key);
 			}else if (key.equals("add")) {
 				String temp = req.getParameter(key);
@@ -126,7 +118,7 @@ public class Servlet extends HttpServlet{
 			Boolean fin = false;
 			Iterator<Address> iter = coUsers.iterator();
 			Address tempor;
-;			while (!fin && iter.hasNext()) {
+			while (!fin && iter.hasNext()) {
 				tempor = iter.next();
 				if(tempor.getUsername().equals(username)) {
 					discoUsers.add(new Disco(username, new Timestamp(System.currentTimeMillis())));
@@ -138,7 +130,7 @@ public class Servlet extends HttpServlet{
 			Boolean fin = false;
 			Iterator<Disco> iter = discoUsers.iterator();
 			Disco tempor;
-;			while (!fin && iter.hasNext()) {
+			while (!fin && iter.hasNext()) {
 				tempor = iter.next();
 				if(tempor.getUsername().equals(username)) {
 					coUsers.add(new Address(InetAddress.getByAddress(addr), pseudo, username));

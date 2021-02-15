@@ -7,9 +7,7 @@ import javax.swing.JTextArea;
 @SuppressWarnings("deprecation")
 public class TextModel extends Observable{
 	private JTextArea j;
-	/**
-	 * pour les résultats qui affiche à droit 
-	 */
+
 	public TextModel() {
 
 	}

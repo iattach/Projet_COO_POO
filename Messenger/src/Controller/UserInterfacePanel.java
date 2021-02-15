@@ -255,7 +255,7 @@ public class UserInterfacePanel extends JPanel {
 		pass = new JPasswordField();
 		op.add(pass);
 
-		op.add(new JLabel("Display Name : " + "    ", JLabel.LEFT));
+		op.add(new JLabel("Nickname : " + "    ", JLabel.LEFT));
 		nickName = new JTextField(10);
 		op.add(nickName);
 
@@ -476,8 +476,8 @@ public class UserInterfacePanel extends JPanel {
 				nickname = user;
 			}
 
-			boolean unique_user = true;//DBCentral.checkUsername(user);// dbcentrale=============mark=============
-			boolean unique_nick = true;//DBCentral.checkNickname(nickname);// dbcentrale=============mark=============
+			boolean unique_user =DBLocal.checkUsername(user);//DBCentral.checkUsername(user);// dbcentrale=============mark=============
+			boolean unique_nick = DBLocal.checkNickname(nickname);//DBCentral.checkNickname(nickname);// dbcentrale=============mark=============
 
 			if (unique_user && unique_nick) {
 				Address add = null;

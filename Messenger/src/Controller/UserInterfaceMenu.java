@@ -53,7 +53,7 @@ public class UserInterfaceMenu extends JMenuBar{
 				pannel.changeAccount();
 			}
 		});
-		menuSys3=new JMenuItem("Change display name");
+		menuSys3=new JMenuItem("Change nickname");
 		menuSys3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pannel.changeDisplayName();
